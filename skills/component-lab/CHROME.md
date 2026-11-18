@@ -1,27 +1,27 @@
 # The Lab Chrome
 
-The chrome is harness, not design. Copy the markup, CSS and wiring below. Only the component name, variants, axis toggles, groups and scenarios change per run. It is dark and not theme-aware, so it reads as chrome on any project. Only the **stage** takes the project's background.
+The chrome is harness, not design. Copy the markup, CSS and wiring below. Only the component name, variants, axis toggles and scenarios change per run. It is a plain white page with thin grey dividers, so it reads as chrome on any project. It turns dark only when the component has a theme axis and the user picks dark.
 
 ## Layout
+
+A white page, split in two, with a white top bar. Thin dividers separate the bar, the two halves and every grid cell.
 
 ```
 ┌───────────────────────────────────────────────────────────────────┐
 │ Button  [Primary][Danger]            size [sm][md][lg]  theme […] │
 ├───────────────────┬───────────────────────────────────────────────┤
-│ INTERACTIVE       │ DATA                                          │
-│                   │            default  loading  disabled         │
-│   ┌─────────┐     │  Primary   [ Save ] [Saving…] [ Save ]        │
-│   │  Save   │     │  Danger    [Delete] [Deleting] [Delete]       │
-│   └─────────┘     │ INTERACTION                                   │
-│                   │            hover    focus    pressed          │
-│                   │  Primary   [ Save ] [ Save ] [ Save ]         │
-└───────────────────┴───────────────────────────────────────────────┘
+│ INTERACTIVE       │ Primary · default │ Primary · loading │ Primary · … │
+│                   ├───────────────────┼───────────────────┼─────────────┤
+│   ┌─────────┐     │      [ Save ]     │     [Saving…]     │   [ Save ]  │
+│   │  Save   │     ├───────────────────┼───────────────────┼─────────────┤
+│   └─────────┘     │ Danger · default  │ Danger · loading  │ Danger · …  │
+│                   │     [Delete]      │    [Deleting]     │   [Delete]  │
+└───────────────────┴───────────────────┴───────────────────┴─────────────┘
 ```
 
-- **Top bar.** Component name, a variant switch (only if there is more than one variant), and one toggle group per other axis the component has (size, theme, width). Nothing for an axis the component lacks.
-- **Left: the interactive component.** One live instance, labelled "Interactive". Real hover, focus and typing, with every action stubbed (see Stubbing). It shows the variant chosen in the variant switch.
-- **Right: every state at once.** A grid, one cell per scenario, each with a small label under a group heading. With more than one variant, variants are rows and scenarios are columns. Cells are real components at real size, so a change shows across every state in one view.
-- **Stage.** Both panes sit on the project's page background, in realistic surroundings (a button in a form, a card beside sibling cards).
+- **Top bar.** White. Component name, a variant switch (only if there is more than one variant), and one toggle group per other axis the component has (size, theme, width). Nothing for an axis the component lacks.
+- **Left half: the interactive component.** One live instance, labelled "Interactive", centered. Real hover, focus and typing, with every action stubbed (see Stubbing). It shows the variant chosen in the variant switch.
+- **Right half: the grid.** One cell per variant and scenario, divided by horizontal and vertical lines. Each cell has a small label (`variant · scenario`, or just `scenario` with one variant) above the real component at real size. Scenarios keep their group order, so related states sit together.
 
 ## Stubbing
 
@@ -47,35 +47,34 @@ Self-contained HTML. In a framework, keep the class names, structure and behavio
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Component Lab</title>
 <style>
-  :root { --lab-bg: #0b0b0c; --lab-fg: #e8e8ea; --lab-dim: #8b8b92; --lab-line: rgba(255,255,255,.08); --lab-hi: rgba(255,255,255,.1); }
+  :root { --bg: #fff; --fg: #111; --dim: #8a8a8f; --line: #e6e6e8; --hi: #f1f1f3; }
+  :root[data-theme="dark"] { --bg: #141416; --fg: #eee; --dim: #8b8b92; --line: #2a2a2e; --hi: #232327; }
   * { box-sizing: border-box; }
   html, body { height: 100%; margin: 0; }
-  body { display: grid; grid-template-rows: auto 1fr; font: 13px/1.4 -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; background: var(--lab-bg); color: var(--lab-fg); }
-  .lab-bar { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 20px; padding: 10px 16px; border-bottom: 1px solid var(--lab-line); }
+  body { display: grid; grid-template-rows: auto 1fr; font: 13px/1.4 -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; background: var(--bg); color: var(--fg); }
+  .lab-bar { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 20px; padding: 10px 16px; border-bottom: 1px solid var(--line); }
   .lab-name { font-weight: 600; }
   .lab-spacer { flex: 1; }
-  .lab-group { display: flex; align-items: center; gap: 2px; padding: 2px; border-radius: 8px; background: var(--lab-hi); }
-  .lab-group > span { padding: 0 8px; color: var(--lab-dim); }
+  .lab-group { display: flex; align-items: center; gap: 2px; padding: 2px; border: 1px solid var(--line); border-radius: 8px; }
+  .lab-group > span { padding: 0 8px; color: var(--dim); }
   .lab-btn { padding: 4px 10px; border: 0; border-radius: 6px; background: none; color: inherit; font: inherit; cursor: pointer; }
-  .lab-btn:hover { background: var(--lab-hi); }
-  .lab-btn[aria-pressed="true"] { background: rgba(255,255,255,.18); font-weight: 600; }
+  .lab-btn:hover { background: var(--hi); }
+  .lab-btn[aria-pressed="true"] { background: var(--hi); font-weight: 600; }
   .lab-body { display: grid; grid-template-columns: minmax(280px, 1fr) 3fr; min-height: 0; }
-  .lab-stage { --stage-bg: #fff; --stage-fg: #111; min-width: 0; overflow: auto; padding: 20px; background: var(--stage-bg); color: var(--stage-fg); }
-  .lab-stage[data-theme="dark"] { --stage-bg: #141416; --stage-fg: #eee; }
-  .lab-left { display: grid; place-content: center; justify-items: start; gap: 12px; border-right: 1px solid var(--lab-line); }
-  .lab-cap { font-size: 11px; letter-spacing: .04em; color: #888; }
-  .lab-h { margin: 20px 0 8px; font-size: 11px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: #888; }
-  .lab-h:first-child { margin-top: 0; }
-  .lab-grid { display: grid; gap: 14px 20px; align-items: center; justify-items: start; }
-  .lab-wrap { display: flex; flex-wrap: wrap; gap: 14px 20px; }
-  .lab-cell { display: grid; gap: 6px; justify-items: start; }
+  .lab-left { position: relative; display: grid; place-content: center; padding: 20px; border-right: 1px solid var(--line); }
+  .lab-right { overflow: auto; }
+  .lab-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); border-top: 0; }
+  .lab-cell { display: grid; grid-template-rows: auto 1fr; gap: 14px; padding: 12px 14px; border-right: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+  .lab-cell > :last-child { place-self: center; }
+  .lab-cap { font-size: 11px; color: var(--dim); }
+  .lab-left .lab-cap { position: absolute; top: 12px; left: 14px; }
 </style>
 </head>
 <body>
 <header class="lab-bar" id="bar"></header>
 <div class="lab-body">
-  <section class="lab-stage lab-left" id="left"></section>
-  <section class="lab-stage" id="right"></section>
+  <section class="lab-left" id="left"></section>
+  <section class="lab-right"><div class="lab-grid" id="right"></div></section>
 </div>
 <script>
 // ---- Per run: replace these ----
@@ -111,7 +110,7 @@ function el(tag, cls, text) { const e = document.createElement(tag); if (cls) e.
 function sync() { const u = new URL(location); ['variant', ...AXES.map((a) => a.key)].forEach((k) => st[k] ? u.searchParams.set(k, st[k]) : u.searchParams.delete(k)); history.replaceState(null, '', u); }
 function pick(k, v) { st[k] = v; sync(); draw(); }
 function toggle(label, key, options) { const g = el('div', 'lab-group'); if (label) g.append(el('span', '', label)); options.forEach((o) => { const b = el('button', 'lab-btn', o.label); b.setAttribute('aria-pressed', String(st[key] === o.id)); b.onclick = () => pick(key, o.id); g.append(b); }); return g; }
-function stage(node) { Object.entries(axes()).forEach(([k, v]) => node.dataset[k] = v); }
+function theme() { Object.entries(axes()).forEach(([k, v]) => document.documentElement.dataset[k] = v); }
 function drawBar() {
   const bar = $('#bar'); bar.replaceChildren(el('span', 'lab-name', NAME));
   if (VARIANTS.length > 1) bar.append(toggle('', 'variant', VARIANTS));
@@ -119,28 +118,17 @@ function drawBar() {
   AXES.forEach((a) => bar.append(toggle(a.key, a.key, a.values.map((v) => ({ id: v, label: v })))));
 }
 function drawLeft() {
-  const l = $('#left'); stage(l); l.replaceChildren(el('div', 'lab-cap', 'INTERACTIVE'));
+  const l = $('#left'); l.replaceChildren(el('div', 'lab-cap', 'Interactive'));
   l.append(render(st.variant, (SCENARIOS[0] || {}).props || {}, '', axes()));
 }
 function drawRight() {
-  const r = $('#right'); stage(r); r.replaceChildren();
-  const groups = [...new Set(SCENARIOS.map((s) => s.group))];
-  groups.forEach((g) => {
-    r.append(el('h3', 'lab-h', g));
-    const list = SCENARIOS.filter((s) => s.group === g);
-    if (VARIANTS.length > 1) {
-      const grid = el('div', 'lab-grid'); grid.style.gridTemplateColumns = `auto repeat(${list.length}, auto)`;
-      grid.append(el('span')); list.forEach((s) => grid.append(el('span', 'lab-cap', s.label)));
-      VARIANTS.forEach((v) => { grid.append(el('span', 'lab-cap', v.label)); list.forEach((s) => grid.append(render(v.id, s.props, s.force, axes()))); });
-      r.append(grid);
-    } else {
-      const wrap = el('div', 'lab-wrap');
-      list.forEach((s) => { const c = el('div', 'lab-cell'); c.append(render(undefined, s.props, s.force, axes()), el('span', 'lab-cap', s.label)); wrap.append(c); });
-      r.append(wrap);
-    }
-  });
+  const r = $('#right'); r.replaceChildren();
+  const rows = VARIANTS.length > 1 ? VARIANTS : [{ id: VARIANTS[0] && VARIANTS[0].id, label: '' }];
+  rows.forEach((v) => SCENARIOS.forEach((s) => {
+    const c = el('div', 'lab-cell'); c.append(el('span', 'lab-cap', v.label ? `${v.label} · ${s.label}` : s.label), render(v.id, s.props, s.force, axes())); r.append(c);
+  }));
 }
-function draw() { drawBar(); drawLeft(); drawRight(); }
+function draw() { theme(); drawBar(); drawLeft(); drawRight(); }
 draw();
 </script>
 </body>

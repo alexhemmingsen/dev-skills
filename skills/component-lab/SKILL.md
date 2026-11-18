@@ -8,7 +8,7 @@ disable-model-invocation: true
 
 Invoked with a component ("lets work on the action button"), start at Phase 1. Invoked bare, ask one question: **Which component?**
 
-A lab is a blank page. On the left sits the component, interactive, with every action stubbed. On the right is a grid of every state, each with a small label. You edit the fork, the page updates, and the user sees the change across all states at once. When the user says **lift out**, the work moves into the real component and the lab is deleted.
+A lab is a plain white page with a white top bar, split in two. On the left sits the component, interactive, with every action stubbed. On the right is a grid of every state, divided by thin lines, each cell a small label above the real component. You edit the fork, the page updates, and the user sees the change across all states at once. When the user says **lift out**, the work moves into the real component and the lab is deleted.
 
 ## Hard Rules
 
@@ -37,7 +37,7 @@ Read the component file and the types it imports, nothing wider. Skip the rest o
 
 Use a story or fixture only when the component file leaves the cases unclear.
 
-Group the states by what they are (Data, Interaction, Layout, whatever the component has). Each group becomes a heading in the grid.
+Group the states by what they are (Data, Interaction, Layout, whatever the component has). Groups set the order of the grid, so related states sit together.
 
 **Done when** every axis and value comes from the code or the user's words.
 
