@@ -12,11 +12,12 @@ A lab is a blank page with a left sidebar. The user clicks a state and sees the 
 
 ## Hard Rules
 
-1. **Fork.** The lab renders a throwaway copy of the component. Production files stay untouched until Phase 5.
-2. **Axes come from the code and the prompt.** Make a control for an axis only when the component has it. No variants in the code means no variant tabs.
-3. **Every scenario is real.** Product-shaped copy, plausible names and numbers, working interactions. No lorem ipsum.
-4. **Switching is instant.** No transition between scenarios. The selection lives in the URL, so a reload keeps the place.
-5. **The chrome is fixed.** Copy the sidebar and top bar from [CHROME.md](CHROME.md). Its look never adapts to the project.
+1. **Speed is the product.** Go from the prompt to a drawn lab in the fewest steps. Read the component, write the files, print the URL. No browser walkthrough, no screenshots, no console checks, no clicking through scenarios. The user is the one who looks at it.
+2. **Fork.** The lab renders a throwaway copy of the component. Production files stay untouched until Phase 5.
+3. **Axes come from the code and the prompt.** Make a control for an axis only when the component has it. No variants in the code means no variant tabs.
+4. **Every scenario is real.** Product-shaped copy, plausible names and numbers, working interactions. No lorem ipsum.
+5. **Switching is instant.** No transition between scenarios. The selection lives in the URL, so a reload keeps the place.
+6. **The chrome is fixed.** Copy the sidebar and top bar from [CHROME.md](CHROME.md). Its look never adapts to the project.
 
 ## Workflow
 
@@ -28,16 +29,16 @@ Resolve the prompt to files. "The buttons" is a **family**: every variant, one t
 
 ### Phase 2: Discover axes
 
-Read the source and find what can change. Two kinds:
+Read the component file and the types it imports, nothing wider. Skip the rest of the repo. Find what can change. Two kinds:
 
 - **Variant axes** are what the thing *is*: `variant`, `kind`, `intent`, separate components in a family, `size`.
 - **State axes** are what it is *doing*: boolean props (`disabled`, `loading`, `collapsed`), union props (`status`), data branches (empty, one, many, long text, error), context and store values it reads, CSS pseudo-states (`:hover`, `:focus-visible`, `:active`), breakpoints, dark mode.
 
-Read stories, tests and fixtures too. They name the cases someone already cared about.
+Use a story or fixture only when the component file leaves the cases unclear.
 
 Group the states by what they are (Data, Interaction, Layout, whatever the component has).
 
-**Done when** every axis and value is listed with the line of code or the user's words behind it, and nothing is listed without that trace.
+**Done when** every axis and value comes from the code or the user's words.
 
 ### Phase 3: Fork and build
 
@@ -56,11 +57,11 @@ Pseudo-states need a hook. In the fork, every `:hover`, `:focus-visible` and `:a
 
 The harness sets `data-force` on the component, so hover shows with no mouse. The Component tab leaves it unset, so real hover works.
 
-**Done when** every scenario renders, every interaction responds, the console is clean, and you have clicked through all of them yourself.
+**Done when** the files are written. Do not open a browser.
 
 ### Phase 4: Show and steer
 
-Print the URL and the discovered list, grouped, one line of reason per axis. Then work in the loop: the user says what to change, you edit the fork, the page updates. Steering requests change the list too: "merge those two", "add an empty state", "also at mobile width", "drop sizes". Each is one edit to the scenarios file or the harness.
+Print the URL and the discovered list, grouped, in a few lines. Then work in the loop: the user says what to change, you edit the fork, the page updates. Steering requests change the list too: "merge those two", "add an empty state", "also at mobile width", "drop sizes". Each is one edit to the scenarios file or the harness.
 
 Stay here until the user says **lift out**.
 
