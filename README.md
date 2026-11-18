@@ -14,7 +14,7 @@ To update, run `npx skills@latest update`. To pick up new skills, re-run `add`.
 
 | Skill | What it does |
 | --- | --- |
-| `hello-skills` | Placeholder that confirms the install worked. |
+| `component-lab` | Work on one component in a throwaway lab page with every variant and state one click away, edit it live, then lift it into the real component. Invoke with `/component-lab <component>`. |
 
 ## Related libraries
 
