@@ -1,52 +1,43 @@
 # The Lab Chrome
 
-The chrome is harness, not design. Copy the markup, CSS and wiring below. Only the component name, variant tabs, axis toggles, sidebar groups and scenarios change per run. It is dark and not theme-aware, so it reads as chrome on any project. Only the **stage** takes the project's background.
+The chrome is harness, not design. Copy the markup, CSS and wiring below. Only the component name, variants, axis toggles, groups and scenarios change per run. It is dark and not theme-aware, so it reads as chrome on any project. Only the **stage** takes the project's background.
 
 ## Layout
 
 ```
-┌───────────────┬───────────────────────────────────────────────┐
-│ Component     │ Button   [Primary][Secondary][Danger]  Force: │
-│ Overview      │                              [hover][focus]…  │
-│ ───────────── ├───────────────────────────────────────────────┤
-│ DATA          │                                               │
-│  default      │                    stage                      │
-│  loading      │            (one scenario, full size)          │
-│ INTERACTION   │                                               │
-│  hover        │                                               │
-└───────────────┴───────────────────────────────────────────────┘
+┌───────────────────────────────────────────────────────────────────┐
+│ Button  [Primary][Danger]            size [sm][md][lg]  theme […] │
+├───────────────────┬───────────────────────────────────────────────┤
+│ INTERACTIVE       │ DATA                                          │
+│                   │            default  loading  disabled         │
+│   ┌─────────┐     │  Primary   [ Save ] [Saving…] [ Save ]        │
+│   │  Save   │     │  Danger    [Delete] [Deleting] [Delete]       │
+│   └─────────┘     │ INTERACTION                                   │
+│                   │            hover    focus    pressed          │
+│                   │  Primary   [ Save ] [ Save ] [ Save ]         │
+└───────────────────┴───────────────────────────────────────────────┘
 ```
 
-- **Sidebar, left, 240px.** "Component" and "Overview" on top, then one group heading per discovered group, one item per scenario.
-- **Top bar.** Component name, variant tabs (only if there is more than one variant), toggles for other axes that exist (size, theme, width), and a **Force** row (`hover`, `focus`, `pressed`) when the component has pseudo-states.
-- **Stage.** One scenario at full size on the project's page background, in realistic surroundings: a button inside a form, a card beside sibling cards.
+- **Top bar.** Component name, a variant switch (only if there is more than one variant), and one toggle group per other axis the component has (size, theme, width). Nothing for an axis the component lacks.
+- **Left: the interactive component.** One live instance, labelled "Interactive". Real hover, focus and typing, with every action stubbed (see Stubbing). It shows the variant chosen in the variant switch.
+- **Right: every state at once.** A grid, one cell per scenario, each with a small label under a group heading. With more than one variant, variants are rows and scenarios are columns. Cells are real components at real size, so a change shows across every state in one view.
+- **Stage.** Both panes sit on the project's page background, in realistic surroundings (a button in a form, a card beside sibling cards).
 
-## Views
+## Stubbing
 
-| View | Shows |
-| --- | --- |
-| **Component** (default) | One live instance, fully interactive, real hover and focus, the default scenario |
-| **Overview** | Grid: variants down the side, scenarios across the top. Every cell is the real component at real size. Clicking a cell opens it |
-| **A scenario** | That scenario in the stage |
+The interactive component behaves as it does in the app, with no side effects. Replace every callback prop with a no-op (a toast or counter is fine to show it fired), never call the network or write to a store, and feed it mock data from the scenarios. Pressing Delete deletes nothing.
 
 ## URL
 
-State lives in the query string and is written with `history.replaceState`:
+Axis choices live in the query string, written with `history.replaceState`: `?variant=<id>&size=lg&theme=dark`. Missing params fall back to the first value of each axis. Load reads the URL once.
 
-`?state=<id|overview>&variant=<id>&force=<hover|focus|pressed>&size=lg&theme=dark&width=375`
+## Forced states
 
-A missing `state` means the Component tab. Missing axis params fall back to the first value of each axis. Load reads the URL once, with no animation.
-
-## Behavior
-
-- Click a sidebar item or variant tab to switch. Switching re-mounts the stage instantly.
-- `↑` `↓` step through sidebar items, `←` `→` step through variant tabs. Ignore keys when focus is in an input, textarea, select or contenteditable, or when a modifier is held.
-- `force` sets `data-force` on the component root. It overlays any scenario, so `?state=cancelled&force=hover` shows a hovered cancelled card.
-- Exactly one sidebar item carries `aria-current="true"`.
+A scenario may carry `force` (`hover`, `focus`, `pressed`). The harness sets `data-force` on that cell's component, so the fork's twin selectors (`.btn:hover, .btn[data-force="hover"]`) render it with no mouse. The interactive component never gets `data-force`. A scenario can combine data and force (`cancelled` + `hover`).
 
 ## Reference implementation
 
-Self-contained HTML. In a framework, keep the class names, structure and behavior and express the rendering idiomatically (state instead of `innerHTML`, a keyed re-mount instead of rebuilding).
+Self-contained HTML. In a framework, keep the class names, structure and behavior and express the rendering idiomatically.
 
 ```html
 <!doctype html>
@@ -56,95 +47,100 @@ Self-contained HTML. In a framework, keep the class names, structure and behavio
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Component Lab</title>
 <style>
-  :root { --lab-bg: #0b0b0c; --lab-fg: #e8e8ea; --lab-dim: #8b8b92; --lab-line: rgba(255,255,255,.08); --lab-hi: rgba(255,255,255,.1); --stage-bg: #fff; }
+  :root { --lab-bg: #0b0b0c; --lab-fg: #e8e8ea; --lab-dim: #8b8b92; --lab-line: rgba(255,255,255,.08); --lab-hi: rgba(255,255,255,.1); }
   * { box-sizing: border-box; }
   html, body { height: 100%; margin: 0; }
-  body { display: grid; grid-template-columns: 240px 1fr; font: 13px/1.4 -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; background: var(--lab-bg); color: var(--lab-fg); }
-  .lab-side { padding: 12px 8px; overflow-y: auto; border-right: 1px solid var(--lab-line); }
-  .lab-side h2 { margin: 16px 8px 4px; font-size: 11px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: var(--lab-dim); }
-  .lab-item { display: block; width: 100%; padding: 6px 8px; border: 0; border-radius: 6px; background: none; color: inherit; font: inherit; text-align: left; cursor: pointer; }
-  .lab-item:hover { background: var(--lab-hi); }
-  .lab-item[aria-current="true"] { background: var(--lab-hi); font-weight: 600; }
-  .lab-rule { height: 1px; margin: 8px; background: var(--lab-line); }
-  .lab-main { display: grid; grid-template-rows: auto 1fr; min-width: 0; }
-  .lab-bar { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 16px; padding: 10px 16px; border-bottom: 1px solid var(--lab-line); }
-  .lab-name { font-weight: 600; margin-right: 8px; }
-  .lab-group { display: flex; gap: 2px; padding: 2px; border-radius: 8px; background: var(--lab-hi); }
-  .lab-group .lab-item { width: auto; padding: 4px 10px; }
-  .lab-group .lab-item[aria-current="true"], .lab-group .lab-item[aria-pressed="true"] { background: rgba(255,255,255,.18); }
-  .lab-label { color: var(--lab-dim); }
+  body { display: grid; grid-template-rows: auto 1fr; font: 13px/1.4 -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; background: var(--lab-bg); color: var(--lab-fg); }
+  .lab-bar { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 20px; padding: 10px 16px; border-bottom: 1px solid var(--lab-line); }
+  .lab-name { font-weight: 600; }
   .lab-spacer { flex: 1; }
-  .lab-stage { display: grid; place-items: center; padding: 32px; overflow: auto; background: var(--stage-bg); }
-  .lab-grid { display: grid; gap: 24px 16px; align-items: center; justify-items: start; }
-  .lab-cell { cursor: pointer; }
-  .lab-cap { font-size: 11px; color: #777; }
+  .lab-group { display: flex; align-items: center; gap: 2px; padding: 2px; border-radius: 8px; background: var(--lab-hi); }
+  .lab-group > span { padding: 0 8px; color: var(--lab-dim); }
+  .lab-btn { padding: 4px 10px; border: 0; border-radius: 6px; background: none; color: inherit; font: inherit; cursor: pointer; }
+  .lab-btn:hover { background: var(--lab-hi); }
+  .lab-btn[aria-pressed="true"] { background: rgba(255,255,255,.18); font-weight: 600; }
+  .lab-body { display: grid; grid-template-columns: minmax(280px, 1fr) 3fr; min-height: 0; }
+  .lab-stage { --stage-bg: #fff; --stage-fg: #111; min-width: 0; overflow: auto; padding: 20px; background: var(--stage-bg); color: var(--stage-fg); }
+  .lab-stage[data-theme="dark"] { --stage-bg: #141416; --stage-fg: #eee; }
+  .lab-left { display: grid; place-content: center; justify-items: start; gap: 12px; border-right: 1px solid var(--lab-line); }
+  .lab-cap { font-size: 11px; letter-spacing: .04em; color: #888; }
+  .lab-h { margin: 20px 0 8px; font-size: 11px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: #888; }
+  .lab-h:first-child { margin-top: 0; }
+  .lab-grid { display: grid; gap: 14px 20px; align-items: center; justify-items: start; }
+  .lab-wrap { display: flex; flex-wrap: wrap; gap: 14px 20px; }
+  .lab-cell { display: grid; gap: 6px; justify-items: start; }
 </style>
 </head>
 <body>
-<nav class="lab-side" aria-label="Scenarios" id="side"></nav>
-<div class="lab-main">
-  <header class="lab-bar" id="bar"></header>
-  <main class="lab-stage" id="stage"></main>
+<header class="lab-bar" id="bar"></header>
+<div class="lab-body">
+  <section class="lab-stage lab-left" id="left"></section>
+  <section class="lab-stage" id="right"></section>
 </div>
 <script>
 // ---- Per run: replace these ----
 const NAME = 'Button';
 const VARIANTS = [{ id: 'primary', label: 'Primary' }, { id: 'danger', label: 'Danger' }]; // [] when there are none
-const FORCES = ['hover', 'focus', 'pressed']; // [] when there are no pseudo-states
-const SCENARIOS = [ // { id, label, group, props }
-  { id: 'default', label: 'Default', group: 'Data', props: {} },
-  { id: 'loading', label: 'Loading', group: 'Data', props: { loading: true } },
-  { id: 'disabled', label: 'Disabled', group: 'Data', props: { disabled: true } },
+const AXES = [{ key: 'size', values: ['sm', 'md', 'lg'] }, { key: 'theme', values: ['light', 'dark'] }]; // only axes the component has
+const SCENARIOS = [ // { id, label, group, props, force? }
+  { id: 'default', label: 'default', group: 'Data', props: {} },
+  { id: 'loading', label: 'loading', group: 'Data', props: { loading: true } },
+  { id: 'disabled', label: 'disabled', group: 'Data', props: { disabled: true } },
+  { id: 'hover', label: 'hover', group: 'Interaction', props: {}, force: 'hover' },
+  { id: 'focus', label: 'focus', group: 'Interaction', props: {}, force: 'focus' },
+  { id: 'pressed', label: 'pressed', group: 'Interaction', props: {}, force: 'pressed' },
 ];
-// render(variant, props, force) returns an element: the forked component, with data-force set when force is given
-function render(variant, props, force) {
+// render(variant, props, force, axes) returns an element: the forked component with every action stubbed.
+// Set data-force when force is given. Read axes (size, theme, ...) however the component does.
+function render(variant, props, force, axes) {
   const el = document.createElement('button');
-  el.textContent = props.loading ? 'Saving…' : 'Save';
+  el.textContent = props.loading ? 'Saving…' : variant === 'danger' ? 'Delete' : 'Save';
   el.disabled = !!props.disabled;
-  el.dataset.variant = variant;
+  el.dataset.variant = variant; el.dataset.size = axes.size;
   if (force) el.dataset.force = force;
+  el.onclick = () => {}; // stub: nothing happens
   return el;
 }
 // ---- Harness: leave as is ----
 const $ = (s) => document.querySelector(s);
 const q = new URLSearchParams(location.search);
-const st = { state: q.get('state') || 'component', variant: q.get('variant') || (VARIANTS[0] && VARIANTS[0].id), force: q.get('force') || '' };
-const scenario = () => SCENARIOS.find((s) => s.id === st.state);
-function sync() { const u = new URL(location); for (const k of ['state', 'variant', 'force']) { st[k] && !(k === 'state' && st[k] === 'component') ? u.searchParams.set(k, st[k]) : u.searchParams.delete(k); } history.replaceState(null, '', u); }
-function item(label, on, fn, attr = 'aria-current') { const b = document.createElement('button'); b.className = 'lab-item'; b.textContent = label; if (on) b.setAttribute(attr, 'true'); b.onclick = fn; return b; }
-function set(patch) { Object.assign(st, patch); sync(); draw(); }
-function drawSide() {
-  const side = $('#side'); side.replaceChildren(item('Component', st.state === 'component', () => set({ state: 'component', force: '' })), item('Overview', st.state === 'overview', () => set({ state: 'overview' })));
-  side.append(Object.assign(document.createElement('div'), { className: 'lab-rule' }));
-  let last;
-  for (const s of SCENARIOS) { if (s.group !== last) { const h = document.createElement('h2'); h.textContent = s.group; side.append(h); last = s.group; } side.append(item(s.label, st.state === s.id, () => set({ state: s.id }))); }
-}
+const st = { variant: q.get('variant') || (VARIANTS[0] && VARIANTS[0].id) };
+AXES.forEach((a) => { st[a.key] = a.values.includes(q.get(a.key)) ? q.get(a.key) : a.values[0]; });
+const axes = () => Object.fromEntries(AXES.map((a) => [a.key, st[a.key]]));
+function el(tag, cls, text) { const e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; }
+function sync() { const u = new URL(location); ['variant', ...AXES.map((a) => a.key)].forEach((k) => st[k] ? u.searchParams.set(k, st[k]) : u.searchParams.delete(k)); history.replaceState(null, '', u); }
+function pick(k, v) { st[k] = v; sync(); draw(); }
+function toggle(label, key, options) { const g = el('div', 'lab-group'); if (label) g.append(el('span', '', label)); options.forEach((o) => { const b = el('button', 'lab-btn', o.label); b.setAttribute('aria-pressed', String(st[key] === o.id)); b.onclick = () => pick(key, o.id); g.append(b); }); return g; }
+function stage(node) { Object.entries(axes()).forEach(([k, v]) => node.dataset[k] = v); }
 function drawBar() {
-  const bar = $('#bar'); bar.replaceChildren(Object.assign(document.createElement('span'), { className: 'lab-name', textContent: NAME }));
-  if (VARIANTS.length > 1) { const g = document.createElement('div'); g.className = 'lab-group'; VARIANTS.forEach((v) => g.append(item(v.label, st.variant === v.id, () => set({ variant: v.id })))); bar.append(g); }
-  bar.append(Object.assign(document.createElement('span'), { className: 'lab-spacer' }));
-  if (FORCES.length && st.state !== 'component' && st.state !== 'overview') { bar.append(Object.assign(document.createElement('span'), { className: 'lab-label', textContent: 'Force' })); const g = document.createElement('div'); g.className = 'lab-group'; FORCES.forEach((f) => g.append(item(f, st.force === f, () => set({ force: st.force === f ? '' : f }), 'aria-pressed'))); bar.append(g); }
+  const bar = $('#bar'); bar.replaceChildren(el('span', 'lab-name', NAME));
+  if (VARIANTS.length > 1) bar.append(toggle('', 'variant', VARIANTS));
+  bar.append(el('span', 'lab-spacer'));
+  AXES.forEach((a) => bar.append(toggle(a.key, a.key, a.values.map((v) => ({ id: v, label: v })))));
 }
-function drawStage() {
-  const stage = $('#stage'); stage.replaceChildren();
-  if (st.state === 'component') return stage.append(render(st.variant, (SCENARIOS[0] || {}).props || {}, ''));
-  if (st.state === 'overview') {
-    const rows = VARIANTS.length ? VARIANTS : [{ id: undefined, label: '' }];
-    const grid = document.createElement('div'); grid.className = 'lab-grid'; grid.style.gridTemplateColumns = `auto repeat(${SCENARIOS.length}, auto)`;
-    grid.append(document.createElement('span')); SCENARIOS.forEach((s) => grid.append(Object.assign(document.createElement('span'), { className: 'lab-cap', textContent: s.label })));
-    rows.forEach((v) => { grid.append(Object.assign(document.createElement('span'), { className: 'lab-cap', textContent: v.label })); SCENARIOS.forEach((s) => { const c = document.createElement('div'); c.className = 'lab-cell'; c.append(render(v.id, s.props, '')); c.onclick = () => set({ state: s.id, variant: v.id }); grid.append(c); }); });
-    return stage.append(grid);
-  }
-  const s = scenario(); if (s) stage.append(render(st.variant, s.props, st.force));
+function drawLeft() {
+  const l = $('#left'); stage(l); l.replaceChildren(el('div', 'lab-cap', 'INTERACTIVE'));
+  l.append(render(st.variant, (SCENARIOS[0] || {}).props || {}, '', axes()));
 }
-function draw() { drawSide(); drawBar(); drawStage(); }
-addEventListener('keydown', (e) => {
-  if (e.metaKey || e.ctrlKey || e.altKey || e.shiftKey || (e.target.closest && e.target.closest('input,textarea,select,[contenteditable]'))) return;
-  const ids = ['component', 'overview', ...SCENARIOS.map((s) => s.id)]; const i = ids.indexOf(st.state);
-  if (e.key === 'ArrowDown') set({ state: ids[Math.min(i + 1, ids.length - 1)] }); else if (e.key === 'ArrowUp') set({ state: ids[Math.max(i - 1, 0)] });
-  else if (VARIANTS.length > 1 && (e.key === 'ArrowRight' || e.key === 'ArrowLeft')) { const j = VARIANTS.findIndex((v) => v.id === st.variant) + (e.key === 'ArrowRight' ? 1 : -1); set({ variant: VARIANTS[(j + VARIANTS.length) % VARIANTS.length].id }); }
-  else return; e.preventDefault();
-});
+function drawRight() {
+  const r = $('#right'); stage(r); r.replaceChildren();
+  const groups = [...new Set(SCENARIOS.map((s) => s.group))];
+  groups.forEach((g) => {
+    r.append(el('h3', 'lab-h', g));
+    const list = SCENARIOS.filter((s) => s.group === g);
+    if (VARIANTS.length > 1) {
+      const grid = el('div', 'lab-grid'); grid.style.gridTemplateColumns = `auto repeat(${list.length}, auto)`;
+      grid.append(el('span')); list.forEach((s) => grid.append(el('span', 'lab-cap', s.label)));
+      VARIANTS.forEach((v) => { grid.append(el('span', 'lab-cap', v.label)); list.forEach((s) => grid.append(render(v.id, s.props, s.force, axes()))); });
+      r.append(grid);
+    } else {
+      const wrap = el('div', 'lab-wrap');
+      list.forEach((s) => { const c = el('div', 'lab-cell'); c.append(render(undefined, s.props, s.force, axes()), el('span', 'lab-cap', s.label)); wrap.append(c); });
+      r.append(wrap);
+    }
+  });
+}
+function draw() { drawBar(); drawLeft(); drawRight(); }
 draw();
 </script>
 </body>
