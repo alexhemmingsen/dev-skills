@@ -12,7 +12,7 @@ A lab is a plain white page with a white top bar, split in two. On the left sits
 
 ## Hard Rules
 
-1. **Speed is the product.** Go from the prompt to a drawn lab in the fewest steps. Read the component, write the files, print the URL. No browser walkthrough, no screenshots, no console checks, no clicking through scenarios. The user is the one who looks at it.
+1. **Speed is the product.** Go from the prompt to a drawn lab in the fewest steps. Read the component, write the files, print the URL. Then answer every change request with one edit and nothing else. No browser walkthrough, no screenshots, no console checks, no clicking through scenarios. The user is the one who looks at it.
 2. **Fork.** The lab renders a throwaway copy of the component. Production files stay untouched until Phase 5.
 3. **Axes come from the code and the prompt.** Make a control for an axis only when the component has it. No variants in the code means no variant tabs.
 4. **Every scenario is real.** Product-shaped copy, plausible names and numbers, working interactions. No lorem ipsum.
@@ -60,9 +60,14 @@ The harness sets `data-force` on that grid cell's component, so hover shows with
 
 **Done when** the files are written. Do not open a browser.
 
-### Phase 4: Show and steer
+### Phase 4: Talk and change
 
-Print the URL and the discovered list, grouped, in a few lines. Then work in the loop: the user says what to change, you edit the fork, the page updates. Steering requests change the grid too: "merge those two", "add an empty state", "also at mobile width", "drop sizes". Each is one edit to the scenarios file or the harness.
+Print the URL and the discovered list, grouped, in a few lines. Then the user talks and the page changes: "make the danger button rounder", "hover should be darker", "add an empty state". This loop is the whole point, so keep it *instant*:
+
+- **One edit per request.** Edit the fork (or the scenarios file, or the harness) and stop. Every cell and the interactive component render from the same fork, so one edit updates the component in every variant and state at once.
+- **Nothing between the edit and the reply.** No re-reading the codebase, no re-running discovery, no checks, no tests, no screenshots. Say what changed in one line.
+- **The page is just HTML.** There is no build step to wait for. With a dev server the hot reload shows the change; with the standalone file the user refreshes.
+- **Steering changes the grid too:** "merge those two", "also at mobile width", "drop sizes". Each is one edit to the scenarios file or the harness.
 
 Stay here until the user says **lift out**.
 
