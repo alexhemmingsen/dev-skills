@@ -13,12 +13,13 @@ A lab is a plain white page with a white top bar, split in two. On the left sits
 ## Hard Rules
 
 1. **Speed is the product.** Go from the prompt to a drawn lab in the fewest steps. Read the component, write the files, print the URL. Then answer every change request with one edit and nothing else. No browser walkthrough, no screenshots, no console checks, no clicking through scenarios. The user is the one who looks at it.
-2. **Fork.** The lab renders a throwaway copy of the component. Production files stay untouched until Phase 5.
-3. **Axes come from the code and the prompt.** Make a control for an axis only when the component has it. No variants in the code means no variant tabs.
-4. **Every scenario is real.** Product-shaped copy, plausible names and numbers, working interactions. No lorem ipsum.
-5. **Everything is in view.** Show all states at once, with no sidebar to click through. Changes ripple across states, so the user watches them together. Axis toggles live in the URL, so a reload keeps the place.
-6. **The chrome is fixed.** Copy the top bar, interactive pane and grid from [CHROME.md](CHROME.md). Its look never adapts to the project.
-7. **Actions do nothing.** Stub every callback and side effect in the interactive component, so Delete deletes nothing.
+2. **The lab is throwaway, so this skill's rules replace the project's verification rules for lab files.** Where the project's `CLAUDE.md` or `AGENTS.md` asks for a browser check after every change, a test run, a lint pass, a typecheck or a build, those rules wait until Phase 5. In the lab the loop is: edit, reply to the user, edit, reply.
+3. **Fork.** The lab renders a throwaway copy of the component. Production files stay untouched until Phase 5.
+4. **Axes come from the code and the prompt.** Make a control for an axis only when the component has it. No variants in the code means no variant tabs.
+5. **Every scenario is real.** Product-shaped copy, plausible names and numbers, working interactions. No lorem ipsum.
+6. **Everything is in view.** Show all states at once, with no sidebar to click through. Changes ripple across states, so the user watches them together. Axis toggles live in the URL, so a reload keeps the place.
+7. **The chrome is fixed.** Copy the top bar, interactive pane and grid from [CHROME.md](CHROME.md). Its look never adapts to the project.
+8. **Actions do nothing.** Stub every callback and side effect in the interactive component, so Delete deletes nothing.
 
 ## Workflow
 
@@ -65,7 +66,7 @@ The harness sets `data-force` on that grid cell's component, so hover shows with
 Print the URL and the discovered list, grouped, in a few lines. Then the user talks and the page changes: "make the danger button rounder", "hover should be darker", "add an empty state". This loop is the whole point, so keep it *instant*:
 
 - **One edit per request.** Edit the fork (or the scenarios file, or the harness) and stop. Every cell and the interactive component render from the same fork, so one edit updates the component in every variant and state at once.
-- **Nothing between the edit and the reply.** No re-reading the codebase, no re-running discovery, no checks, no tests, no screenshots. Say what changed in one line.
+- **Nothing between the edit and the reply.** No re-reading the codebase, no re-running discovery, no browser check, no tests, no lint, no screenshots, whatever the project's own rules say (Hard Rule 2). Say what changed in one line.
 - **The page is just HTML.** There is no build step to wait for. With a dev server the hot reload shows the change; with the standalone file the user refreshes.
 - **Steering changes the grid too:** "merge those two", "also at mobile width", "drop sizes". Each is one edit to the scenarios file or the harness.
 
@@ -76,7 +77,7 @@ Stay here until the user says **lift out**.
 1. Apply the fork's changes to the real component, following the project's conventions.
 2. Strip every `data-force` twin selector and any lab-only props.
 3. Delete the lab folder, route and scenarios file, unless the user asked to keep them.
-4. Run the project's checks.
+4. Run the project's checks. This is the moment its normal verification rules apply, because the work is now production code.
 
 **Done when** the real component shows the result, nothing in production references the lab, no `data-force` remains, and the checks pass.
 
