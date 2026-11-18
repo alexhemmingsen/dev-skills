@@ -1,0 +1,5 @@
+# Local installs of other libraries (Matt Pocock, Emil Kowalski)
+.claude/skills/
+.agents/
+skills-lock.json
+.DS_Store
