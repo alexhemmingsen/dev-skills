@@ -8,13 +8,15 @@ disable-model-invocation: true
 
 Invoked with a component ("lets work on the action button"), start at Phase 1. Invoked bare, ask one question: **Which component?**
 
+**The lab is throwaway.** It is a scratch surface beside the project, not part of it. It changes none of the project's code, nothing imports from it, and it is deleted when the work is done. Treat every lab file as disposable.
+
 A lab is a plain white page with a white top bar, split in two. On the left sits the component, interactive, with every action stubbed. On the right is a grid of every state, divided by thin lines, each cell a small label above the real component. You edit the fork, the page updates, and the user sees the change across all states at once. When the user says **lift out**, the work moves into the real component and the lab is deleted.
 
 ## Hard Rules
 
 1. **Speed is the product.** Go from the prompt to a drawn lab in the fewest steps. Read the component, write the files, print the URL. Then answer every change request with one edit and nothing else. No browser walkthrough, no screenshots, no console checks, no clicking through scenarios. The user is the one who looks at it.
-2. **The lab is throwaway, so this skill's rules replace the project's verification rules for lab files.** Where the project's `CLAUDE.md` or `AGENTS.md` asks for a browser check after every change, a test run, a lint pass, a typecheck or a build, those rules wait until Phase 5. In the lab the loop is: edit, reply to the user, edit, reply.
-3. **Fork.** The lab renders a throwaway copy of the component. Production files stay untouched until Phase 5.
+2. **Throwaway code, so this skill's rules replace the project's verification rules for lab files.** Nothing in the lab ships. Where the project's `CLAUDE.md` or `AGENTS.md` asks for a browser check after every change, a test run, a lint pass, a typecheck or a build, those rules wait until Phase 5. In the lab the loop is: edit, reply to the user, edit, reply.
+3. **Fork.** The lab renders a throwaway copy of the component. The project's real code stays untouched until Phase 5, and nothing in the project imports from the lab.
 4. **Axes come from the code and the prompt.** Make a control for an axis only when the component has it. No variants in the code means no variant tabs.
 5. **Every scenario is real.** Product-shaped copy, plausible names and numbers, working interactions. No lorem ipsum.
 6. **Everything is in view.** Show all states at once, with no sidebar to click through. Changes ripple across states, so the user watches them together. Axis toggles live in the URL, so a reload keeps the place.
