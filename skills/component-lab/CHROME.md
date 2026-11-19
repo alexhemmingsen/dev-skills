@@ -4,7 +4,7 @@ The chrome is harness, not design, and it looks the same on every run. It follow
 
 ## Layout
 
-White page, a thin top bar, then the grid and a controls panel, split by hairlines (`rgba(0,0,0,.08)`). Inter 12px throughout.
+A page (white by default), a thin top bar, then the grid and a controls panel, split by hairlines (`rgba(0,0,0,.08)`). Inter 12px throughout.
 
 ```
 ┌──────────────────────────────────────────────────────────────────────────┐
@@ -19,7 +19,7 @@ White page, a thin top bar, then the grid and a controls panel, split by hairlin
 ```
 
 - **Top bar.** Left: `Component lab`, a dot, the component name in grey. Right: a **Variant** label and a native `<select>` (styled to the design: hairline border, 8px radius, chevron), shown only when the component has more than one variant, then a thin divider, then **Background color**: a label and a chip (hex value and swatch, a native color input kept in the URL as `bg`). Variants are what the thing *is*, not its states.
-- **The page background.** The Background color chip sets the background of the grid area, the page the components sit on. It is the only thing that changes it. The top bar and the controls panel stay white.
+- **The page background.** The Background color chip sets the background of the **whole page**: top bar, grid and controls panel. Everything the lab draws itself follows it in a contrast color: the breadcrumb, labels, icons, hairlines, select, chip and segmented controls turn white on a dark background and black on a light one (picked by WCAG luminance), and the chrome's native controls (select, color input) switch with `color-scheme`, which is set on the chrome only so it never restyles a component's own native elements. The components keep their own colors: only text that is not part of a component adapts.
 - **The grid.** One area, no left column. **The first cell is the interactive component**, headed by a star and "Interactive": real hover, focus and typing, every action stubbed (see Stubbing), showing the variant chosen in the select. Every other cell is a **snapshot of one state of the selected variant**, headed by a small grey label (the scenario). Snapshots are not interactive: no hover, no clicks. Switching the variant redraws the grid with that variant's states, and a scenario can list the `variants` it applies to (a textarea's resize handle, a password's show toggle). Scenarios keep their group order.
   - **Any number of cells, always tidy.** There can be 1 cell or 40. Columns are as wide as the component needs (`CELL_WIDTH` for components that fill their container, like inputs and cards; the measured natural width otherwise), so nothing overflows or overlaps a neighbor. As many columns fit as the width allows, and the last row is filled with empty bordered cells so the grid is always a complete rectangle. Content sits top-left under the header, so headers and components line up across a row.
 - **Right panel: global controls.** A white panel with one labelled segmented control per **global axis**, meaning anything that changes the look of *all* instances at once: theme, size, shape or rounding, density, width. A chevrons button at the top folds the panel. With no global axes, the panel is hidden.
@@ -36,7 +36,7 @@ Every control lives in the query string, written with `history.replaceState`: `?
 
 ## Axes and theme
 
-Global axes set `data-<key>` (`data-theme`, `data-size`, `data-shape`) on each component's slot, and pass the values to `render`. They style **the components only**. The theme never changes the page or the chrome: a dark theme makes the components dark on whatever background the Background color chip holds. Only the Background color chip changes the page background.
+Global axes set `data-<key>` (`data-theme`, `data-size`, `data-shape`) on each component's slot, and pass the values to `render`. They style **the components only**. The theme never changes the page or the chrome: a dark theme makes the components dark on whatever background the Background color chip holds. Only the Background color chip changes the page, and the chrome follows it.
 
 ## Forced states
 

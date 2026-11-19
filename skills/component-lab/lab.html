@@ -5,20 +5,22 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Component lab</title>
 <style>
-  :root { --line: rgba(0,0,0,.08); --dim: rgba(0,0,0,.5); }
+  /* page colors: the background color control sets --bg, and JS derives the rest as its contrast */
+  :root { --bg: #fff; --fg: #000; --dim: rgba(0,0,0,.5); --line: rgba(0,0,0,.08); --icon: rgba(0,0,0,.68); --pill: #fff; --chev: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12' fill='none' stroke='black' stroke-width='1.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M2.5 4.5 6 8l3.5-3.5'/%3E%3C/svg%3E"); }
   * { box-sizing: border-box; }
-  html, body { height: 100%; margin: 0; }
-  body { display: flex; flex-direction: column; background: #fff; color: #000; font: 12px/normal Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; letter-spacing: .018px; }
+  html, body { height: 100%; margin: 0; background: var(--bg); }
+  body { display: flex; flex-direction: column; background: var(--bg); color: var(--fg); font: 12px/normal Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; letter-spacing: .018px; }
   /* top bar: breadcrumb left, page controls right */
+  .lab-top, .lab-right { color-scheme: var(--scheme, light); }
   .lab-top { display: flex; align-items: center; gap: 10px; flex: none; padding: 16px; border-bottom: 1px solid var(--line); }
-  .lab-dot { width: 4px; height: 4px; border-radius: 50%; background: rgba(0,0,0,.25); }
+  .lab-dot { width: 4px; height: 4px; border-radius: 50%; background: var(--dim); opacity: .5; }
   .lab-crumb { color: var(--dim); }
   .lab-tools { display: flex; flex: 1; align-items: center; justify-content: flex-end; gap: 16px; min-width: 0; }
   .lab-tool { display: flex; align-items: center; gap: 10px; }
   .lab-tl { color: var(--dim); white-space: nowrap; }
   .lab-vr { width: 1px; height: 16px; background: var(--line); }
-  .lab-select { padding: 4px 28px 4px 8px; border: 1px solid var(--line); border-radius: 8px; background: #fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12' fill='none' stroke='black' stroke-width='1.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M2.5 4.5 6 8l3.5-3.5'/%3E%3C/svg%3E") no-repeat right 8px center / 12px; color: #000; font: inherit; letter-spacing: inherit; appearance: none; -webkit-appearance: none; cursor: pointer; }
-  .lab-bg { position: relative; display: inline-flex; align-items: center; gap: 8px; padding: 4px 8px; border: 1px solid var(--line); border-radius: 8px; color: #000; cursor: pointer; }
+  .lab-select { padding: 4px 28px 4px 8px; border: 1px solid var(--line); border-radius: 8px; background: var(--bg) var(--chev) no-repeat right 8px center / 12px; color: var(--fg); font: inherit; letter-spacing: inherit; appearance: none; -webkit-appearance: none; cursor: pointer; }
+  .lab-bg { position: relative; display: inline-flex; align-items: center; gap: 8px; padding: 4px 8px; border: 1px solid var(--line); border-radius: 8px; color: var(--fg); cursor: pointer; }
   .lab-bg input { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
   .lab-swatch { width: 16px; height: 16px; border-radius: 4px; box-shadow: 0 1px 2px rgba(0,0,0,.14), 0 0 0 1px var(--line); }
   /* body: the grid, then the controls panel */
@@ -28,17 +30,17 @@
   .lab-cell { display: flex; flex-direction: column; align-items: flex-start; gap: 12px; min-width: 0; padding: 16px; border-right: 1px solid var(--line); border-bottom: 1px solid var(--line); pointer-events: none; user-select: none; }
   .lab-live { pointer-events: auto; user-select: auto; }
   .lab-head { display: flex; align-items: center; gap: 10px; color: var(--dim); }
-  .lab-head svg { width: 12px; height: 12px; color: #525252; }
+  .lab-head svg { width: 12px; height: 12px; color: var(--icon); }
   .lab-slot { width: max-content; max-width: 100%; }
   .lab-slot[data-fixed] { width: var(--slot-w); }
   .lab-right { display: flex; flex-direction: column; gap: 16px; flex: none; padding: 16px 8px; } /* no border-left: the last grid column's border-right is already that line */
   .lab-right[hidden] { display: none; }
   .lab-field { display: grid; gap: 8px; justify-items: start; }
   .lab-flabel { padding-left: 8px; color: var(--dim); }
-  .lab-seg { display: flex; padding: .5px; border-radius: 8px; background: var(--line); box-shadow: inset 0 0 0 .5px rgba(0,0,0,.04); }
-  .lab-opt { padding: 4px 8px; border: 0; border-radius: 7.5px; background: none; color: #000; font: inherit; letter-spacing: inherit; white-space: nowrap; cursor: pointer; }
-  .lab-opt[aria-pressed="true"] { background: #fff; box-shadow: 0 0 0 .5px var(--line); }
-  .lab-fold { align-self: flex-start; display: grid; place-items: center; width: 24px; height: 16px; border: 0; background: none; color: #525252; cursor: pointer; }
+  .lab-seg { display: flex; padding: .5px; border-radius: 8px; background: var(--line); box-shadow: inset 0 0 0 .5px var(--line); }
+  .lab-opt { padding: 4px 8px; border: 0; border-radius: 7.5px; background: none; color: var(--fg); font: inherit; letter-spacing: inherit; white-space: nowrap; cursor: pointer; }
+  .lab-opt[aria-pressed="true"] { background: var(--pill); box-shadow: 0 0 0 .5px var(--line); }
+  .lab-fold { align-self: flex-start; display: grid; place-items: center; width: 24px; height: 16px; border: 0; background: none; color: var(--icon); cursor: pointer; }
   .lab-fold svg { width: 12px; height: 12px; }
   .lab-right[data-folded] .lab-fold svg { transform: rotate(180deg); }
   .lab-right[data-folded] .lab-field { display: none; }
@@ -99,6 +101,18 @@ function seg(label, key, options) {
   options.forEach((o) => { const b = el('button', 'lab-opt', o.label); b.setAttribute('aria-pressed', String(st[key] === o.id)); b.onclick = () => { st[key] = o.id; sync(); draw(); }; s.append(b); });
   f.append(s); return f;
 }
+// Whole-page background, and every chrome color follows it: black on light, white on dark (WCAG luminance). Components keep their own colors.
+function applyPage() {
+  const hex = st.bg || '#ffffff', n = parseInt(hex.slice(1), 16);
+  const lin = (v) => { v /= 255; return v <= .03928 ? v / 12.92 : Math.pow((v + .055) / 1.055, 2.4); };
+  const L = .2126 * lin(n >> 16 & 255) + .7152 * lin(n >> 8 & 255) + .0722 * lin(n & 255);
+  const dark = L <= .179, c = dark ? '255,255,255' : '0,0,0', r = document.documentElement.style;
+  r.setProperty('--bg', hex); r.setProperty('--fg', dark ? '#fff' : '#000');
+  r.setProperty('--dim', `rgba(${c},.5)`); r.setProperty('--line', `rgba(${c},.08)`); r.setProperty('--icon', `rgba(${c},.68)`);
+  r.setProperty('--pill', dark ? 'rgba(255,255,255,.14)' : '#fff');
+  r.setProperty('--chev', `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12' fill='none' stroke='${dark ? 'white' : 'black'}' stroke-width='1.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M2.5 4.5 6 8l3.5-3.5'/%3E%3C/svg%3E")`);
+  r.setProperty('--scheme', dark ? 'dark' : 'light'); // native controls in the chrome only; components never inherit it
+}
 function drawTools() {
   const t = $('#tools'); t.replaceChildren();
   if (VARIANTS.length > 1) {
@@ -109,13 +123,13 @@ function drawTools() {
   }
   const chip = el('label', 'lab-bg'); const sw = el('span', 'lab-swatch'); const input = el('input'); input.type = 'color'; input.value = st.bg || '#ffffff';
   const hex = el('span', '', (st.bg || '#ffffff').toUpperCase()); sw.style.background = st.bg || '#ffffff';
-  input.oninput = () => { st.bg = input.value; hex.textContent = st.bg.toUpperCase(); sw.style.background = st.bg; $('#mid').style.background = st.bg; sync(); };
+  input.oninput = () => { st.bg = input.value; hex.textContent = st.bg.toUpperCase(); sw.style.background = st.bg; applyPage(); sync(); };
   chip.append(input, hex, sw);
   const b = el('div', 'lab-tool'); b.append(el('span', 'lab-tl', 'Background color'), chip); t.append(b);
 }
 const STAR = '<svg viewBox="0 0 12 12" fill="currentColor"><path d="M6 .9l1.5 3.2 3.5.4-2.6 2.4.7 3.5L6 8.6 2.9 10.4l.7-3.5L1 4.5l3.5-.4z"/></svg>';
 function drawGrid() {
-  const g = $('#grid'); g.replaceChildren(); $('#mid').style.background = st.bg;
+  const g = $('#grid'); g.replaceChildren();
   // first cell: the live, interactive component
   const live = el('div', 'lab-cell lab-live'); const head = el('div', 'lab-head'); head.innerHTML = STAR; head.append(el('span', '', 'Interactive'));
   live.append(head, slot(render(st.variant, (scenarios()[0] || {}).props || {}, '', axes()))); g.append(live);
@@ -142,7 +156,7 @@ function drawControls() {
   fold.onclick = () => { c.toggleAttribute('data-folded'); };
   c.replaceChildren(fold, ...AXES.map((a) => seg(a.label, a.key, a.values)));
 }
-function draw() { $('#crumb').textContent = NAME; drawTools(); drawGrid(); drawControls(); }
+function draw() { $('#crumb').textContent = NAME; applyPage(); drawTools(); drawGrid(); drawControls(); }
 draw();
 new ResizeObserver(layoutGrid).observe($('#mid'));
 </script>
