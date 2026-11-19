@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Component lab</title>
 <!--
-HOW THIS PAGE BEHAVES. Copy it and edit only the "Per run" block. Follows Figma file heapsgo-exploration-design, node 447:6243.
+HOW THIS PAGE BEHAVES. Copy it and edit only the "Per run" block.
 
 LAYOUT  Top bar: breadcrumb, variant select (only with 2+ variants), then the background color chip, its color picker and the project-color dropdown. Body: the grid, then a right panel of global controls (folds, at least 150px wide, hidden when there are no axes). The root .lab is position:fixed, inset:0, so it fills the viewport whatever the app wraps around it.
 GRID    First cell: the live component, interactive, with a gold star and "Interactive". Every other cell: one snapshot per scenario of the selected variant, not interactive. Columns are measured from what really rendered (wide children, menus, popups), rows grow for parts that hang below, the last row is filled so the grid is a full rectangle, and the live cell re-measures after use. No widths are configured: a component that fills its container fills its slot (max 360px).
