@@ -57,7 +57,7 @@
 // ---- Per run: replace these ----
 const NAME = 'Buttons';
 const VARIANTS = [{ id: 'action', label: 'Action' }, { id: 'neutral', label: 'Neutral' }]; // [] when there are none
-const AXES = [ // only what changes the look of ALL instances and exists in the component
+const AXES = [ // EXAMPLES, delete what the component lacks. Theme, size and shape are all optional; [] hides the whole panel. Only axes that change the look of ALL instances and exist in the component.
   { key: 'shape', label: 'Shape', values: [{ id: 'round', label: 'Round' }, { id: 'edgy', label: 'Edgy' }] },
   { key: 'size', label: 'Size', values: [{ id: 'sm', label: 'Small' }, { id: 'md', label: 'Medium' }, { id: 'lg', label: 'Large' }] },
   { key: 'theme', label: 'Theme', values: [{ id: 'light', label: 'Light' }, { id: 'dark', label: 'Dark' }] }, // styles the components only, never the page
