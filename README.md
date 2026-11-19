@@ -1,11 +1,11 @@
-# dev-skills
+# skills
 
 Agent skills for software development.
 
 ## Install
 
 ```bash
-npx skills@latest add alexhemmingsen/dev-skills
+npx skills@latest add alexhemmingsen/skills
 ```
 
 To update, run `npx skills@latest update`. To pick up new skills, re-run `add`.
