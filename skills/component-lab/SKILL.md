@@ -44,6 +44,8 @@ Read the component file and the types it imports, nothing wider. Skip the rest o
 
 Use a story or fixture only when the component file leaves the cases unclear.
 
+Also collect the project's **color variables** for the background dropdown: one search for CSS custom properties that hold colors (`--color-*`, `--bg-*`, theme blocks), the Tailwind theme or config, or a tokens file. Read their names and values only, never whole stylesheets. Use `var(--name)` as the value when the variable is a CSS custom property, since the lab runs inside the app and it resolves live. Leave the list empty when the project has none.
+
 Group the states by what they are (Data, Interaction, Layout, whatever the component has). Groups set the order of the grid, so related states sit together.
 
 **Done when** every axis and value comes from the code or the user's words.
@@ -62,7 +64,7 @@ Build the lab in the stack's own idiom:
 
 Start the fork by copying the component's real markup, styles and icon SVGs (Hard Rule 4), then strip only what the lab must stub.
 
-Files: the forked component, plus the lab page copied from [lab.html](lab.html) with its `Per run` block filled in (name, variants, axes, `CELL_WIDTH`, scenarios as a plain list of `id`, `label`, `group`, `props`, optional `force` and `variants`, and a `render` that mounts the fork).
+Files: the forked component, plus the lab page copied from [lab.html](lab.html) with its `Per run` block filled in (name, variants, axes, `COLORS`, `CELL_WIDTH`, scenarios as a plain list of `id`, `label`, `group`, `props`, optional `force` and `variants`, and a `render` that mounts the fork).
 
 Size the grid to the component. Set `CELL_WIDTH` to a realistic width (e.g. 320) for components that fill their container (inputs, cards, rows) and leave it `0` for components with a natural size (buttons, chips). The grid handles any number of cells, from 1 up. Give a scenario `variants` when it only applies to some variants, so each variant's grid holds exactly its own states.
 

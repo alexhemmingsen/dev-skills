@@ -6,7 +6,7 @@
 <title>Component lab</title>
 <style>
   /* page colors: the background color control sets --bg, and JS derives the rest as its contrast */
-  :root { --bg: #fff; --fg: #000; --dim: rgba(0,0,0,.5); --line: rgba(0,0,0,.08); --icon: rgba(0,0,0,.68); --pill: #fff; --chev: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12' fill='none' stroke='black' stroke-width='1.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M2.5 4.5 6 8l3.5-3.5'/%3E%3C/svg%3E"); }
+  :root { --bg: #fff; --fg: #000; --dim: rgba(0,0,0,.5); --line: rgba(0,0,0,.08); --icon: rgba(0,0,0,.68); --gold: #b7791f; --pill: #fff; --chev: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12' fill='none' stroke='black' stroke-width='1.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M2.5 4.5 6 8l3.5-3.5'/%3E%3C/svg%3E"); }
   * { box-sizing: border-box; }
   html, body { height: 100%; margin: 0; background: var(--bg); }
   body { display: flex; flex-direction: column; background: var(--bg); color: var(--fg); font: 12px/normal Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; letter-spacing: .018px; }
@@ -16,12 +16,22 @@
   .lab-dot { width: 4px; height: 4px; border-radius: 50%; background: var(--dim); opacity: .5; }
   .lab-crumb { color: var(--dim); }
   .lab-tools { display: flex; flex: 1; align-items: center; justify-content: flex-end; gap: 16px; min-width: 0; }
-  .lab-tool { display: flex; align-items: center; gap: 10px; }
+  .lab-tool { display: flex; align-items: center; gap: 8px; }
+  .lab-grp { display: flex; align-items: center; gap: 4px; }
   .lab-tl { color: var(--dim); white-space: nowrap; }
   .lab-vr { width: 1px; height: 16px; background: var(--line); }
-  .lab-select { padding: 4px 28px 4px 8px; border: 1px solid var(--line); border-radius: 8px; background: var(--bg) var(--chev) no-repeat right 8px center / 12px; color: var(--fg); font: inherit; letter-spacing: inherit; appearance: none; -webkit-appearance: none; cursor: pointer; }
-  .lab-bg { position: relative; display: inline-flex; align-items: center; gap: 8px; padding: 4px 8px; border: 1px solid var(--line); border-radius: 8px; color: var(--fg); cursor: pointer; }
+  .lab-select, .lab-bg, .lab-iconbtn { height: 26px; }
+  .lab-select { padding: 0 32px 0 8px; border: 1px solid var(--line); border-radius: 8px; background: var(--bg) var(--chev) no-repeat right 10px center / 12px; color: var(--fg); font: inherit; letter-spacing: inherit; appearance: none; -webkit-appearance: none; cursor: pointer; }
+  .lab-bg { position: relative; display: inline-flex; align-items: center; gap: 8px; padding: 0 8px; border: 1px solid var(--line); border-radius: 8px; color: var(--fg); cursor: pointer; }
   .lab-popwrap { position: relative; }
+  .lab-iconbtn { display: grid; place-items: center; padding: 0 8px; border: 1px solid var(--line); border-radius: 8px; background: none; color: var(--fg); cursor: pointer; }
+  .lab-iconbtn[aria-pressed="true"] { background: var(--line); }
+  .lab-iconbtn span { display: grid; place-items: center; width: 16px; height: 16px; }
+  .lab-iconbtn svg { width: 12px; height: 12px; }
+  .lab-toks { width: 260px; max-height: 300px; overflow: auto; gap: 2px; padding: 6px; }
+  .lab-tok { display: flex; align-items: center; gap: 8px; width: 100%; padding: 6px 8px; border: 0; border-radius: 8px; background: none; color: var(--fg); font: inherit; letter-spacing: inherit; text-align: left; cursor: pointer; }
+  .lab-tok:hover, .lab-tok[aria-pressed="true"] { background: var(--line); }
+  .lab-tok small { margin-left: auto; color: var(--dim); font-size: 11px; }
   .lab-bg { font: inherit; letter-spacing: inherit; background: none; }
   .lab-pop { position: absolute; top: calc(100% + 8px); right: 0; z-index: 10; display: grid; gap: 12px; width: 232px; padding: 12px; border: 1px solid var(--line); border-radius: 12px; background: var(--pop, #fff); box-shadow: 0 12px 32px rgba(0,0,0,.14), 0 2px 6px rgba(0,0,0,.08); color-scheme: var(--scheme, light); }
   .lab-pop[hidden] { display: none; }
@@ -48,6 +58,9 @@
   .lab-live { pointer-events: auto; user-select: auto; }
   .lab-head { display: flex; align-items: center; gap: 10px; color: var(--dim); }
   .lab-head svg { width: 12px; height: 12px; color: var(--icon); }
+  .lab-live .lab-head, .lab-live .lab-head svg { color: var(--gold); } /* gold marks the live preview */
+  html[data-pill] .lab-live .lab-head { padding: 2px 8px; margin: -2px 0 0 -8px; border-radius: 999px; background: #fbbf24; } /* on pages where no gold text is readable, the label carries its own gold pill */
+  html[data-pill] .lab-live .lab-head, html[data-pill] .lab-live .lab-head svg { color: #422006; }
   .lab-slot { width: max-content; max-width: 100%; }
   .lab-slot[data-fixed] { width: var(--slot-w); }
   .lab-right { display: flex; flex-direction: column; gap: 16px; flex: none; padding: 16px 8px; border-left: 1px solid var(--line); } /* the full-height divider; the last grid column draws no right border of its own */
@@ -81,6 +94,11 @@ const AXES = [ // EXAMPLES, delete what the component lacks. Theme, size and sha
   { key: 'size', label: 'Size', values: [{ id: 'sm', label: 'Small' }, { id: 'md', label: 'Medium' }, { id: 'lg', label: 'Large' }] },
   { key: 'theme', label: 'Theme', values: [{ id: 'light', label: 'Light' }, { id: 'dark', label: 'Dark' }] }, // styles the components only, never the page
 ];
+const COLORS = [ // EXAMPLES, replace with the project's own color variables (CSS custom properties, Tailwind theme colors, token files), or [] when it has none: the dropdown next to the background color fills the page with one. value: any CSS color or var(--token); name: the variable, shown dim.
+  { label: 'Surface', name: '--color-surface', value: '#fafafa' },
+  { label: 'Surface inverted', name: '--color-surface-inverted', value: '#171717' },
+  { label: 'Accent', name: '--color-accent', value: '#f04438' },
+];
 const CELL_WIDTH = 0; // px width of the component's slot. 0 = its natural size (buttons, chips). Set it for components that fill their container (inputs, cards, rows), e.g. 320.
 const SCENARIOS = [ // { id, label, group, props, force?, variants? } variants: ids it applies to; omit for all variants
   { id: 'default', label: 'default', group: 'Data', props: {} },
@@ -104,12 +122,12 @@ function render(variant, props, force, axes) {
 // ---- Harness: leave as is ----
 const $ = (s) => document.querySelector(s);
 const q = new URLSearchParams(location.search);
-const st = { variant: VARIANTS.some((v) => v.id === q.get('variant')) ? q.get('variant') : VARIANTS[0] && VARIANTS[0].id, bg: /^#[0-9a-f]{6}$/i.test(q.get('bg') || '') ? q.get('bg') : '' };
+const st = { variant: VARIANTS.some((v) => v.id === q.get('variant')) ? q.get('variant') : VARIANTS[0] && VARIANTS[0].id, bg: /^#[0-9a-f]{6}$/i.test(q.get('bg') || '') ? q.get('bg') : '', token: COLORS.some((c) => c.label === q.get('token')) ? q.get('token') : '' };
 AXES.forEach((a) => { st[a.key] = a.values.some((v) => v.id === q.get(a.key)) ? q.get(a.key) : a.values[0].id; });
 const axes = () => Object.fromEntries(AXES.map((a) => [a.key, st[a.key]]));
 const scenarios = () => SCENARIOS.filter((s) => !s.variants || s.variants.includes(st.variant));
 function el(tag, cls, text) { const e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; }
-function sync() { const u = new URL(location); ['variant', 'bg', ...AXES.map((a) => a.key)].forEach((k) => st[k] ? u.searchParams.set(k, st[k]) : u.searchParams.delete(k)); history.replaceState(null, '', u); }
+function sync() { const u = new URL(location); ['variant', 'bg', 'token', ...AXES.map((a) => a.key)].forEach((k) => st[k] ? u.searchParams.set(k, st[k]) : u.searchParams.delete(k)); history.replaceState(null, '', u); }
 // The slot carries the axes (data-theme, data-size, ...), so they style the components only.
 function slot(node) { const s = el('div', 'lab-slot'); AXES.forEach((a) => s.dataset[a.key] = st[a.key]); if (CELL_WIDTH) { s.dataset.fixed = ''; s.style.setProperty('--slot-w', CELL_WIDTH + 'px'); } s.append(node); return s; }
 function seg(label, key, options) {
@@ -119,13 +137,27 @@ function seg(label, key, options) {
   f.append(s); return f;
 }
 // Whole-page background, and every chrome color follows it: black on light, white on dark (WCAG luminance). Components keep their own colors.
+// Any CSS color or var(--token) to #rrggbb, through the browser itself so oklch, color() and variables all work.
+function resolveColor(v) {
+  try {
+    const p = document.createElement('i'); p.style.cssText = 'display:none;color:' + v; document.body.append(p);
+    const c = getComputedStyle(p).color; p.remove();
+    const ctx = resolveColor.ctx || (resolveColor.ctx = document.createElement('canvas').getContext('2d', { willReadFrequently: true }));
+    ctx.clearRect(0, 0, 1, 1); ctx.fillStyle = '#000'; ctx.fillStyle = c; ctx.fillRect(0, 0, 1, 1);
+    const d = ctx.getImageData(0, 0, 1, 1).data; return '#' + [d[0], d[1], d[2]].map((x) => x.toString(16).padStart(2, '0')).join('');
+  } catch (e) { const m = String(v).match(/^#[0-9a-f]{6}$/i); return m ? m[0].toLowerCase() : null; }
+}
 function applyPage() {
-  const hex = st.bg || '#ffffff', n = parseInt(hex.slice(1), 16);
+  const tk = COLORS.find((c) => c.label === st.token);
+  const hex = (tk && resolveColor(tk.value)) || st.bg || '#ffffff', n = parseInt(hex.slice(1), 16);
   const lin = (v) => { v /= 255; return v <= .03928 ? v / 12.92 : Math.pow((v + .055) / 1.055, 2.4); };
   const L = .2126 * lin(n >> 16 & 255) + .7152 * lin(n >> 8 & 255) + .0722 * lin(n & 255);
   const dark = L <= .179, c = dark ? '255,255,255' : '0,0,0', r = document.documentElement.style;
   r.setProperty('--bg', hex); r.setProperty('--fg', dark ? '#fff' : '#000');
   r.setProperty('--dim', `rgba(${c},.5)`); r.setProperty('--line', `rgba(${c},.08)`); r.setProperty('--icon', `rgba(${c},.68)`);
+  const cr = (a) => (Math.max(L, a) + .05) / (Math.min(L, a) + .05); // contrast of each gold against the page
+  const gold = [['#b7791f', .238], ['#fbbf24', .579]].map(([g, l]) => [g, cr(l)]).sort((a, b) => b[1] - a[1])[0];
+  r.setProperty('--gold', gold[0]); document.documentElement.toggleAttribute('data-pill', gold[1] < 3);
   r.setProperty('--pill', dark ? 'rgba(255,255,255,.14)' : '#fff');
   r.setProperty('--pop', dark ? `color-mix(in srgb, ${hex}, #fff 12%)` : '#fff'); // the picker gets its own surface, so it never blends into the page
   r.setProperty('--chev', `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12' fill='none' stroke='${dark ? 'white' : 'black'}' stroke-width='1.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M2.5 4.5 6 8l3.5-3.5'/%3E%3C/svg%3E")`);
@@ -155,7 +187,8 @@ function drag(node, fn) {
 }
 let pk = null; // current hsv, kept across picks so the hue survives going through white, black and grey
 function bgPicker() {
-  pk = pk || hexToHsv(st.bg || '#ffffff');
+  pk = pk || hexToHsv(((COLORS.find((c) => c.label === st.token) || {}).value && resolveColor(COLORS.find((c) => c.label === st.token).value)) || st.bg || '#ffffff');
+  let marks = () => {};
   const wrap = el('div', 'lab-popwrap'), chip = el('button', 'lab-bg'), hexLabel = el('span'), sw = el('span', 'lab-swatch');
   chip.type = 'button'; chip.setAttribute('aria-haspopup', 'dialog'); chip.setAttribute('aria-expanded', 'false'); chip.append(hexLabel, sw);
   const pop = el('div', 'lab-pop'); pop.hidden = true; pop.setAttribute('role', 'dialog'); pop.setAttribute('aria-label', 'Background color');
@@ -170,11 +203,11 @@ function bgPicker() {
     const hx = hsvToHex(pk); sv.style.setProperty('--hue', pk.h);
     svKnob.style.left = pk.s * 100 + '%'; svKnob.style.top = (1 - pk.v) * 100 + '%'; hueKnob.style.left = pk.h / 360 * 100 + '%';
     svKnob.style.background = hx; hueKnob.style.background = `hsl(${pk.h} 100% 50%)`;
-    hexLabel.textContent = hx.toUpperCase(); sw.style.background = hx;
+    hexLabel.textContent = st.token || hx.toUpperCase(); sw.style.background = hx; marks();
     if (document.activeElement !== input) input.value = hx; input.removeAttribute('aria-invalid');
     buttons.forEach(([p, b]) => b.setAttribute('aria-pressed', String(p === hx)));
   }
-  function commit() { const hx = hsvToHex(pk); st.bg = hx === '#ffffff' ? '' : hx; applyPage(); sync(); paint(); }
+  function commit() { const hx = hsvToHex(pk); st.token = ''; st.bg = hx === '#ffffff' ? '' : hx; applyPage(); sync(); paint(); }
   drag(sv, (x, y) => { pk.s = x; pk.v = 1 - y; commit(); });
   drag(hue, (x) => { pk.h = x * 359.99; commit(); });
   sv.onkeydown = (e) => { const k = e.shiftKey ? .1 : .02, d = { ArrowLeft: [-k, 0], ArrowRight: [k, 0], ArrowUp: [0, k], ArrowDown: [0, -k] }[e.key]; if (d) { e.preventDefault(); pk.s = clamp(pk.s + d[0]); pk.v = clamp(pk.v + d[1]); commit(); } };
@@ -187,7 +220,31 @@ function bgPicker() {
   if (bgPicker.off) bgPicker.off(); // the toolbar redraws; keep one set of document listeners
   document.addEventListener('pointerdown', away); document.addEventListener('keydown', esc);
   bgPicker.off = () => { document.removeEventListener('pointerdown', away); document.removeEventListener('keydown', esc); };
-  paint(); return wrap;
+  paint();
+  const grp = el('div', 'lab-grp'); grp.append(wrap);
+  if (COLORS.length) grp.append(tokenMenu());
+  return grp;
+  // The project's own color variables: pick one and the page fills with it.
+  function tokenMenu() {
+    const w = el('div', 'lab-popwrap'), btn = el('button', 'lab-iconbtn'), icon = el('span');
+    btn.type = 'button'; btn.title = 'Project colors'; btn.setAttribute('aria-label', 'Project colors'); btn.setAttribute('aria-haspopup', 'listbox'); btn.setAttribute('aria-expanded', 'false');
+    icon.innerHTML = '<svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"><path d="M1.5 3h2.2M6.3 3h4.2M1.5 9h4.2M8.3 9h2.2"/><circle cx="5" cy="3" r="1.3"/><circle cx="7" cy="9" r="1.3"/></svg>'; btn.append(icon);
+    const menu = el('div', 'lab-pop lab-toks'); menu.hidden = true; menu.setAttribute('role', 'listbox'); menu.setAttribute('aria-label', 'Project colors');
+    const rows = COLORS.map((c) => {
+      const hx = resolveColor(c.value) || '#ffffff', b = el('button', 'lab-tok'), s2 = el('span', 'lab-swatch');
+      b.type = 'button'; b.setAttribute('role', 'option'); s2.style.background = hx; b.append(s2, el('span', '', c.label)); if (c.name) b.append(el('small', '', c.name));
+      b.onclick = () => { st.token = c.label; st.bg = hx === '#ffffff' ? '' : hx; pk = hexToHsv(hx); applyPage(); sync(); paint(); close(); };
+      menu.append(b); return [c.label, b];
+    });
+    marks = () => { rows.forEach(([l, b]) => b.setAttribute('aria-selected', String(l === st.token))); rows.forEach(([l, b]) => b.toggleAttribute('aria-pressed', false) || (l === st.token && b.setAttribute('aria-pressed', 'true'))); btn.toggleAttribute('data-on', !!st.token); };
+    const close = () => { menu.hidden = true; btn.setAttribute('aria-expanded', 'false'); };
+    btn.onclick = () => { menu.hidden = !menu.hidden; btn.setAttribute('aria-expanded', String(!menu.hidden)); };
+    const away = (e) => { if (!w.contains(e.target)) close(); }, esc = (e) => { if (e.key === 'Escape') close(); };
+    if (tokenMenu.off) tokenMenu.off();
+    document.addEventListener('pointerdown', away); document.addEventListener('keydown', esc);
+    tokenMenu.off = () => { document.removeEventListener('pointerdown', away); document.removeEventListener('keydown', esc); };
+    w.append(btn, menu); marks(); return w;
+  }
 }
 function drawTools() {
   const t = $('#tools'); t.replaceChildren();
