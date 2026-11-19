@@ -14,7 +14,7 @@
   .lab-crumb { color: var(--dim); }
   .lab-cols { display: flex; flex: 1; min-height: 0; }
   /* left: preview */
-  .lab-left { display: flex; flex-direction: column; flex: none; min-width: 400px; border-right: 1px solid var(--line); }
+  .lab-left { display: flex; flex-direction: column; flex: none; width: 300px; max-width: 60vw; border-right: 1px solid var(--line); }
   .lab-sec { padding: 16px 8px; border-bottom: 1px solid var(--line); }
   .lab-field { display: grid; gap: 8px; justify-items: start; }
   .lab-field + .lab-field { margin-top: 16px; }
@@ -22,10 +22,12 @@
   .lab-seg { display: flex; padding: .5px; border-radius: 8px; background: var(--line); box-shadow: inset 0 0 0 .5px rgba(0,0,0,.04); }
   .lab-opt { padding: 4px 8px; border: 0; border-radius: 7.5px; background: none; color: #000; font: inherit; letter-spacing: inherit; white-space: nowrap; cursor: pointer; }
   .lab-opt[aria-pressed="true"] { background: #fff; box-shadow: 0 0 0 .5px var(--line); }
-  .lab-bg { position: relative; display: inline-flex; align-items: center; gap: 8px; padding: 8px; border: 1px dashed var(--line); border-radius: 8px; color: var(--dim); cursor: pointer; }
+  .lab-select { padding: 4px 28px 4px 8px; border: 1px solid var(--line); border-radius: 8px; background: #fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12' fill='none' stroke='black' stroke-width='1.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M2.5 4.5 6 8l3.5-3.5'/%3E%3C/svg%3E") no-repeat right 8px center / 12px; color: #000; font: inherit; letter-spacing: inherit; appearance: none; -webkit-appearance: none; cursor: pointer; }
+  .lab-bg { position: relative; display: inline-flex; align-items: center; gap: 8px; padding: 8px; border: 1px solid var(--line); border-radius: 8px; color: #000; cursor: pointer; }
   .lab-bg input { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
   .lab-swatch { width: 16px; height: 16px; border-radius: 4px; box-shadow: 0 1px 2px rgba(0,0,0,.14), 0 0 0 1px var(--line); }
   .lab-preview { display: grid; flex: 1; place-items: center; padding: 16px; overflow: auto; }
+  .lab-preview .lab-slot { max-width: none; }
   /* stage: preview area and grid cells carry the axes */
   .lab-stage[data-theme="dark"] { background: #141416; color: #eee; }
   /* middle: grid of snapshots */
@@ -49,7 +51,7 @@
 <header class="lab-top"><span>Component lab</span><i class="lab-dot"></i><span class="lab-crumb" id="crumb"></span></header>
 <div class="lab-cols">
   <section class="lab-left">
-    <div class="lab-sec" id="variants"></div>
+    <div class="lab-sec" id="variants" hidden></div>
     <div class="lab-sec" id="bg"></div>
     <div class="lab-preview lab-stage" id="preview"></div>
   </section>
@@ -103,12 +105,21 @@ const scenarios = () => SCENARIOS.filter((s) => !s.variants || s.variants.includ
 function slot(node) { const s = el('div', 'lab-slot'); if (CELL_WIDTH) { s.dataset.fixed = ''; s.style.setProperty('--slot-w', CELL_WIDTH + 'px'); } s.append(node); return s; }
 function stage(node) { AXES.forEach((a) => node.dataset[a.key] = st[a.key]); }
 function drawLeft() {
-  const v = $('#variants'); v.replaceChildren(VARIANTS.length > 1 ? seg('Preview', 'variant', VARIANTS) : Object.assign(el('div', 'lab-flabel', 'Preview')));
+  const v = $('#variants'); v.hidden = VARIANTS.length < 2; v.replaceChildren();
+  if (VARIANTS.length > 1) {
+    const f = el('div', 'lab-field'); const sel = el('select', 'lab-select'); sel.setAttribute('aria-label', 'Variant');
+    VARIANTS.forEach((o) => { const opt = el('option', '', o.label); opt.value = o.id; opt.selected = o.id === st.variant; sel.append(opt); });
+    sel.onchange = () => { st.variant = sel.value; sync(); draw(); };
+    f.append(el('div', 'lab-flabel', 'Variant'), sel); v.append(f);
+  }
   const b = $('#bg'); const chip = el('label', 'lab-bg'); const sw = el('span', 'lab-swatch'); const input = el('input'); input.type = 'color'; input.value = st.bg || '#ffffff';
   sw.style.background = st.bg || '#ffffff';
   input.oninput = () => { st.bg = input.value; sw.style.background = st.bg; $('#preview').style.background = st.bg; sync(); };
-  chip.append(input, sw, el('span', '', 'Background color')); b.replaceChildren(chip);
-  const p = $('#preview'); stage(p); p.style.background = st.bg; p.replaceChildren(slot(render(st.variant, (scenarios()[0] || {}).props || {}, '', axes())));
+  chip.append(input, el('span', '', 'Background color'), sw); b.replaceChildren(chip);
+  const p = $('#preview'); stage(p); p.style.background = st.bg;
+  const sl = slot(render(st.variant, (scenarios()[0] || {}).props || {}, '', axes())); p.replaceChildren(sl);
+  // 300px, grown until the component fits horizontally
+  $('.lab-left').style.width = Math.max(300, Math.ceil(sl.getBoundingClientRect().width) + 32) + 'px';
 }
 function drawGrid() {
   const g = $('#grid'); g.replaceChildren();

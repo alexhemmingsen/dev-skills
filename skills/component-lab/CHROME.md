@@ -10,10 +10,10 @@ White page, a thin top bar, then three columns split by hairlines (`rgba(0,0,0,.
 ┌──────────────────────────────────────────────────────────────────────────┐
 │ Component lab · Buttons                                                  │
 ├──────────────────────┬─────────────────────────────────────┬─────────────┤
-│ Preview              │ Action · default │ Action · loading │ »           │
-│ [Action][Neutral]    │                  │                  │ Shape       │
+│ Variant              │ Action · default │ Action · loading │ »           │
+│ [Action        ⌄]    │                  │                  │ Shape       │
 ├──────────────────────┼──────────────────┼──────────────────│ [Round][Edgy]
-│ ▢ Background color   │ Action · hover   │ Action · focus   │ Size        │
+│ Background color ▢   │ Action · hover   │ Action · focus   │ Size        │
 ├──────────────────────┼──────────────────┼──────────────────│ [S][M][L]   │
 │                      │ Neutral · default│ Neutral · loading│ Theme       │
 │     [  Save  ]       │                  │                  │ [Light][Dark]
@@ -21,7 +21,7 @@ White page, a thin top bar, then three columns split by hairlines (`rgba(0,0,0,.
 ```
 
 - **Top bar.** `Component lab`, a dot, then the component name in grey.
-- **Left column: the preview.** Top: the **variant switch** under a "Preview" label, shown only when the component has more than one variant (variants are what the thing *is*, not its states). Then a **Background color** chip that sets the preview area's background (a native color input, kept in the URL as `bg`). Below: the **preview area**, with the live interactive component centered, every action stubbed (see Stubbing). It shows the variant chosen in the switch.
+- **Left column: the preview.** Top: a **Variant** label over a native `<select>` (styled to the design: hairline border, 8px radius, chevron), shown only when the component has more than one variant (variants are what the thing *is*, not its states). Then a **Background color** chip (the label, then a swatch; a native color input kept in the URL as `bg`) that sets the preview area's background. Below: the **preview area**, with the live interactive component centered, every action stubbed (see Stubbing). It shows the variant chosen in the select. The column is **300px wide** and grows when the component is wider, until the component fits horizontally (capped at 60% of the window).
 - **Middle: the grid.** A snapshot of every state of the **selected variant** only. Switching the variant redraws the grid with that variant's states, and a scenario can list the `variants` it applies to (a textarea's resize handle, a password's show toggle). Each cell has a small grey label (the scenario) above the real component. Cells are divided by horizontal and vertical lines and are not interactive: no hover, no clicks. Scenarios keep their group order.
   - **Any number of cells, always tidy.** There can be 1 cell or 40. Columns are as wide as the component needs (`CELL_WIDTH` for components that fill their container, like inputs and cards; the measured natural width otherwise), so nothing overflows or overlaps a neighbor. As many columns fit as the width allows, and the last row is filled with empty bordered cells so the grid is always a complete rectangle. Content sits top-left under the label, so labels and components line up across a row.
 - **Right column: global controls.** A light grey panel (`#fafafa`) with one labelled segmented control per **global axis**, meaning anything that changes the look of *all* instances at once: theme, size, shape or rounding, density, width. A chevrons button at the top folds the panel. With no global axes, the panel is hidden.
