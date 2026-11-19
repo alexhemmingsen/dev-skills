@@ -46,4 +46,4 @@ A scenario may carry `force` (`hover`, `focus`, `pressed`). The harness sets `da
 
 [lab.html](lab.html) is the complete page: markup, CSS and script in one self-contained file. Copy it, then edit only the block marked `Per run` (name, variants, axes, scenarios, `render`). The harness below that block stays as is.
 
-In an app, the lab is a route in the app's own router (see Phase 3 of `SKILL.md`), never a loose file. Port the template with the class names, CSS and structure unchanged, and express the rendering idiomatically: state instead of `innerHTML`, the fork imported as a normal component so hot reload updates every cell, and the CSS in a stylesheet or style block next to the route.
+In an app, the lab is a route (or a search-param guard, see Phase 3 of `SKILL.md`) inside the app, never a loose file. Port the template with the class names, CSS and structure unchanged, and express the rendering idiomatically: state instead of `innerHTML`, the fork imported as a normal component so hot reload updates every cell, and the CSS in a stylesheet or style block next to the route.
