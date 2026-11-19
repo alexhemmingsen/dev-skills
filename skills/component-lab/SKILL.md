@@ -6,7 +6,7 @@ disable-model-invocation: true
 
 # Component Lab
 
-Invoked with a component ("lets work on the action button"), start at Phase 1. Invoked bare, ask one question: **Which component?**
+Invoked with a component ("lets work on the action button"), start at Phase 1. Invoked bare, ask one question: **Which component?** When no such component exists yet ("make a new button"), it is a **new component**: the agent drafts it, with every state a finished one needs, and the work goes on from there. The steps marked *New component* below are the only differences.
 
 **The lab is throwaway.** It is a scratch surface beside the project, not part of it. It changes none of the project's code, nothing imports from it, and it is always deleted when the work ends (Hard Rule 11). Treat every lab file as disposable.
 
@@ -16,8 +16,8 @@ A lab is a page (white by default) with a thin top bar and a grid. **Top bar:** 
 
 1. **Speed is the product.** Go from the prompt to a drawn lab in the fewest steps. Read the component, write the files, print the URL. Then answer every change request with one edit and nothing else. No browser walkthrough, no screenshots, no console checks, no clicking through scenarios. The user is the one who looks at it.
 2. **Throwaway code, so this skill's rules replace the project's verification rules for lab files.** Nothing in the lab ships. Where the project's `CLAUDE.md` or `AGENTS.md` asks for a browser check after every change, a test run, a lint pass, a typecheck or a build, those rules wait until Phase 5. In the lab the loop is: edit, reply to the user, edit, reply.
-3. **Fork.** The lab renders a throwaway copy of the component. The project's real code stays untouched until Phase 5, and nothing in the project imports from the lab.
-4. **Replicate the component exactly.** The fork looks identical to the real component: same markup structure, same icons, same images, same fonts, sizes, spacing, colors, radii and shadows. Icons are the real icons: copy the SVG from the component's own icon source (or import the project's icon module) and render it. An emoji, a text glyph or a placeholder box is never an icon. If the component shows an eye, a chevron or a clear button, the lab shows that exact eye, chevron or clear button. When an asset cannot be found, say so and ask; never invent a stand-in. **Replicate the component, never its surroundings.** The component sits directly on the lab page, so the page background is the only background behind it. Copy the component's own fill (a button's color, a card's surface, a selected row's highlight) and nothing it merely lives inside: no sidebar surface, panel, card, modal, form, page or other container, no wrapper `div` with a color, and no backdrop of any kind. A nav item from a white sidebar is rendered without the sidebar's white; a component with no fill of its own is transparent. The user changes the page color with the background control, and a backdrop would hide it.
+3. **Fork.** The lab renders a throwaway copy of the component (for a new component, a throwaway first draft). The project's real code stays untouched until Phase 5, and nothing in the project imports from the lab.
+4. **Replicate the component exactly** (an existing component; a new one has nothing to replicate, see Phase 3). The fork looks identical to the real component: same markup structure, same icons, same images, same fonts, sizes, spacing, colors, radii and shadows. Icons are the real icons: copy the SVG from the component's own icon source (or import the project's icon module) and render it. An emoji, a text glyph or a placeholder box is never an icon. If the component shows an eye, a chevron or a clear button, the lab shows that exact eye, chevron or clear button. When an asset cannot be found, say so and ask; never invent a stand-in. **Replicate the component, never its surroundings.** The component sits directly on the lab page, so the page background is the only background behind it. Copy the component's own fill (a button's color, a card's surface, a selected row's highlight) and nothing it merely lives inside: no sidebar surface, panel, card, modal, form, page or other container, no wrapper `div` with a color, and no backdrop of any kind. A nav item from a white sidebar is rendered without the sidebar's white; a component with no fill of its own is transparent. The user changes the page color with the background control, and a backdrop would hide it.
 5. **Write the fork the quickest way, unrelated to the project.** *How* the fork is written is free: no obligation to the project's CSS conventions, design tokens, utility classes, CSS modules, naming or file layout. Plain CSS or inline styles with hardcoded values, whatever is fastest. The speed is in the writing, never in the likeness. The project's conventions come back at lift-out, when the changes are translated into them.
 6. **Axes come from the code and the prompt.** Make a control for an axis only when the component has it. No variants in the code means no variant tabs.
 7. **Every scenario is real.** Product-shaped copy, plausible names and numbers, working interactions, the component's real icons. No lorem ipsum.
@@ -30,9 +30,9 @@ A lab is a page (white by default) with a thin top bar and a grid. **Top bar:** 
 
 ### Phase 1: Scope
 
-Resolve the prompt to files. "The buttons" is a **family**: every variant, one row each in the grid. "The action button" is **one variant**: states only. State the scope in one sentence.
+Resolve the prompt to files with one search by name. If nothing matches, or the user says new, it is a **new component**: say so in one line ("No button exists yet, so I'll draft one") and go on without asking. "The buttons" is a **family**: every variant, one row each in the grid. "The action button" is **one variant**: states only. State the scope in one sentence.
 
-**Done when** the component's source files are located and the scope is one sentence.
+**Done when** the component's source files are located (or it is a new component) and the scope is one sentence.
 
 ### Phase 2: Discover axes
 
@@ -43,6 +43,8 @@ Read the component file and the types it imports, nothing wider. Skip the rest o
 - **State axes** are what it is *doing*, and fill the grid: boolean props (`disabled`, `loading`, `collapsed`), union props (`status`), data branches (empty, one, many, long text, error), context and store values it reads, CSS pseudo-states (`:hover`, `:focus-visible`, `:active`), breakpoints, dark mode.
 
 Use a story or fixture only when the component file leaves the cases unclear.
+
+**New component:** there is no code to read, so decide the axes from what a finished component of that kind needs. The variants people reach for, the global axes it should honor (size, shape, theme), and above all **every state**: interaction (default, hover, focus-visible, pressed, disabled), async (loading, success, error where they apply), and data (empty, long content, with an icon, and so on). Err toward complete: the user removes a cell faster than they think of a missing one. For the look, read the color variables below and one existing component of similar size, to take radius, type scale and spacing from the project; skip that when the project has none.
 
 Also collect the project's **color variables** for the background select: one search for CSS custom properties that hold colors (`--color-*`, `--bg-*`, theme blocks), the Tailwind theme or config, or a tokens file. Take **every** variable whose value is a raw color (hex, `rgb()`, `hsl()`, `oklch()`, `color()`), as `{ name, value }` with the raw value, and skip aliases like `var(--other)` and anything that is not a color. Read names and values only, never whole stylesheets. Leave the list empty when the project has none.
 
@@ -63,6 +65,8 @@ Build the lab in the stack's own idiom:
 - **Native or other stacks:** the nearest equivalent that keeps the loop: a debug-only gallery screen with the same layout (interactive component beside a grid of states), a launch argument in place of the URL param, and the stack's own hot reload or preview.
 
 Start the fork by copying the component's real markup, styles and icon SVGs (Hard Rule 4), then strip only what the lab must stub.
+
+**New component:** write a first draft instead, an MVP in the fork from scratch. It implements every scenario in the grid, takes its look from the project (colors, radius, type, spacing), uses real icons from the project's icon source, and stays plain and complete rather than clever. The user then steers it in Phase 4.
 
 Files: the forked component, plus the lab page copied from [lab.html](lab.html) with its `Per run` block filled in (name, variants, axes, `COLORS`, `CELL_WIDTH`, scenarios as a plain list of `id`, `label`, `group`, `props`, optional `force` and `variants`, and a `render` that mounts the fork).
 
@@ -99,7 +103,7 @@ Stay here until the user says **lift out**.
 
 ### Phase 5: Lift out and delete the lab
 
-1. Translate the fork's changes into the real component, now following the project's conventions: its tokens, utility classes, naming and file layout.
+1. Translate the fork's changes into the real component, now following the project's conventions: its tokens, utility classes, naming and file layout. **New component:** create the real component where its kind lives (look at where similar components sit), following the project's conventions for file, name, props and exports. No existing component is replaced.
 2. Strip every `data-force` twin selector and any lab-only props from the real component.
 3. **Delete the lab.** Remove the whole `ahem-skill-<component>` folder, and remove everything else the lab touched: the search-param guard, a route registration, a generated route tree or manifest entry, a nav link, a launch argument or gallery entry on native. Deleting is not optional and never waits for the user to ask.
 4. Prove it is gone. Search the repo for `ahem-skill` and for `data-force`: zero hits. `git status` lists no lab path. Stop the dev server if you started it.
@@ -115,6 +119,7 @@ If the user drops the work instead ("never mind", "scrap it"), skip steps 1 and 
 | --- | --- |
 | `<component>` | Phases 1 to 4 |
 | `<component> <detail>` | Same, narrowed ("only the destructive variant", "just loading states") |
+| `new <component>` | New component: Phase 1 sees nothing to read, so the agent drafts an MVP with every state it needs, then Phase 4 |
 | `add <scenario>` | New cell in the running lab's grid |
 | `lift out` | Phase 5: move the work into the real component, then delete the lab |
 | `drop it` | Delete the lab without lifting anything out |
