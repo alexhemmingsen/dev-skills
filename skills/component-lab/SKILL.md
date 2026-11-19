@@ -10,7 +10,7 @@ Invoked with a component ("lets work on the action button"), start at Phase 1. I
 
 **The lab is throwaway.** It is a scratch surface beside the project, not part of it. It changes none of the project's code, nothing imports from it, and it is deleted when the work is done. Treat every lab file as disposable.
 
-A lab is a white page with a thin top bar and three columns. **Left:** the preview, with the variant switch on top (only if the component has variants), a background-color chip, then the interactive component with every action stubbed. **Middle:** a grid of non-interactive snapshots of every variant and state, each cell a small label above the real component, divided by thin lines. **Right:** a grey panel of global controls that change every instance at once (theme, size, shape, whatever the component has). You edit the fork, the page updates, and the user sees the change across all states at once. When the user says **lift out**, the work moves into the real component and the lab is deleted.
+A lab is a white page with a thin top bar and three columns. **Left:** the preview, with the variant switch on top (only if the component has variants), a background-color chip, then the interactive component with every action stubbed. **Middle:** a grid of non-interactive snapshots of every state of the selected variant, each cell a small label above the real component, divided by thin lines. **Right:** a grey panel of global controls that change every instance at once (theme, size, shape, whatever the component has). You edit the fork, the page updates, and the user sees the change across all states at once. When the user says **lift out**, the work moves into the real component and the lab is deleted.
 
 ## Hard Rules
 
@@ -53,7 +53,9 @@ Build the lab in the stack's own idiom:
 - **Web:** a route `/lab/<component>` (or the framework's equivalent) with the dev server's hot reload, styled by the fork's own plain CSS. Without a project, one self-contained HTML file.
 - **Native or other stacks:** the nearest equivalent that keeps the loop: a debug-only gallery screen with the same layout (interactive component beside a grid of states), a launch argument in place of the URL param, and the stack's own hot reload or preview.
 
-Files: the forked component, plus the lab page copied from [lab.html](lab.html) with its `Per run` block filled in (name, variants, axes, scenarios as a plain list of `id`, `label`, `group`, `props`, optional `force`, and a `render` that mounts the fork).
+Files: the forked component, plus the lab page copied from [lab.html](lab.html) with its `Per run` block filled in (name, variants, axes, `CELL_WIDTH`, scenarios as a plain list of `id`, `label`, `group`, `props`, optional `force` and `variants`, and a `render` that mounts the fork).
+
+Size the grid to the component. Set `CELL_WIDTH` to a realistic width (e.g. 320) for components that fill their container (inputs, cards, rows) and leave it `0` for components with a natural size (buttons, chips). The grid handles any number of cells, from 1 up. Give a scenario `variants` when it only applies to some variants, so each variant's grid holds exactly its own states.
 
 Pseudo-states need a hook. In the fork, every `:hover`, `:focus-visible` and `:active` style gets a twin selector keyed on `data-force`:
 
