@@ -27,7 +27,6 @@
   .lab-popwrap { position: relative; }
   /* the project color variables: the sliders icon button from the design, with a native <select> laid invisibly over it, so a click opens the browser's own list */
   .lab-iconsel { position: relative; display: grid; place-items: center; height: 26px; padding: 0 8px; border: 1px solid var(--line); border-radius: 8px; color: var(--fg); }
-  .lab-iconsel[data-on] { background: var(--line); }
   .lab-iconsel:focus-within { outline: 2px solid var(--fg); outline-offset: 2px; }
   .lab-iconsel > span { display: grid; place-items: center; width: 16px; height: 16px; pointer-events: none; }
   .lab-iconsel svg { width: 12px; height: 12px; }
@@ -126,12 +125,12 @@ function render(variant, props, force, axes) {
 // ---- Harness: leave as is ----
 const $ = (s) => document.querySelector(s);
 const q = new URLSearchParams(location.search);
-const st = { variant: VARIANTS.some((v) => v.id === q.get('variant')) ? q.get('variant') : VARIANTS[0] && VARIANTS[0].id, bg: /^#[0-9a-f]{6}$/i.test(q.get('bg') || '') ? q.get('bg') : '', token: COLORS.some((c) => c.name === q.get('token')) ? q.get('token') : '' };
+const st = { variant: VARIANTS.some((v) => v.id === q.get('variant')) ? q.get('variant') : VARIANTS[0] && VARIANTS[0].id, bg: /^#[0-9a-f]{6}$/i.test(q.get('bg') || '') ? q.get('bg') : '' };
 AXES.forEach((a) => { st[a.key] = a.values.some((v) => v.id === q.get(a.key)) ? q.get(a.key) : a.values[0].id; });
 const axes = () => Object.fromEntries(AXES.map((a) => [a.key, st[a.key]]));
 const scenarios = () => SCENARIOS.filter((s) => !s.variants || s.variants.includes(st.variant));
 function el(tag, cls, text) { const e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; }
-function sync() { const u = new URL(location); ['variant', 'bg', 'token', ...AXES.map((a) => a.key)].forEach((k) => st[k] ? u.searchParams.set(k, st[k]) : u.searchParams.delete(k)); history.replaceState(null, '', u); }
+function sync() { const u = new URL(location); ['variant', 'bg', ...AXES.map((a) => a.key)].forEach((k) => st[k] ? u.searchParams.set(k, st[k]) : u.searchParams.delete(k)); history.replaceState(null, '', u); }
 // The slot carries the axes (data-theme, data-size, ...), so they style the components only.
 function slot(node) { const s = el('div', 'lab-slot'); AXES.forEach((a) => s.dataset[a.key] = st[a.key]); s.append(node); return s; }
 function seg(label, key, options) {
@@ -152,8 +151,7 @@ function resolveColor(v) {
   } catch (e) { const m = String(v).match(/^#[0-9a-f]{6}$/i); return m ? m[0].toLowerCase() : null; }
 }
 function applyPage() {
-  const tk = COLORS.find((c) => c.name === st.token);
-  const hex = (tk && resolveColor(tk.value)) || st.bg || '#ffffff', n = parseInt(hex.slice(1), 16);
+  const hex = st.bg || '#ffffff', n = parseInt(hex.slice(1), 16);
   const lin = (v) => { v /= 255; return v <= .03928 ? v / 12.92 : Math.pow((v + .055) / 1.055, 2.4); };
   const L = .2126 * lin(n >> 16 & 255) + .7152 * lin(n >> 8 & 255) + .0722 * lin(n & 255);
   const dark = L <= .179, c = dark ? '255,255,255' : '0,0,0', r = document.documentElement.style;
@@ -191,8 +189,7 @@ function drag(node, fn) {
 }
 let pk = null; // current hsv, kept across picks so the hue survives going through white, black and grey
 function bgPicker() {
-  pk = pk || hexToHsv((st.token && resolveColor((COLORS.find((c) => c.name === st.token) || {}).value)) || st.bg || '#ffffff');
-  let syncVars = () => {};
+  pk = pk || hexToHsv(st.bg || '#ffffff');
   const wrap = el('div', 'lab-popwrap'), chip = el('button', 'lab-bg'), hexLabel = el('span'), sw = el('span', 'lab-swatch');
   chip.type = 'button'; chip.setAttribute('aria-haspopup', 'dialog'); chip.setAttribute('aria-expanded', 'false'); chip.append(hexLabel, sw);
   const pop = el('div', 'lab-pop'); pop.hidden = true; pop.setAttribute('role', 'dialog'); pop.setAttribute('aria-label', 'Background color');
@@ -207,11 +204,11 @@ function bgPicker() {
     const hx = hsvToHex(pk); sv.style.setProperty('--hue', pk.h);
     svKnob.style.left = pk.s * 100 + '%'; svKnob.style.top = (1 - pk.v) * 100 + '%'; hueKnob.style.left = pk.h / 360 * 100 + '%';
     svKnob.style.background = hx; hueKnob.style.background = `hsl(${pk.h} 100% 50%)`;
-    hexLabel.textContent = hx.toUpperCase(); sw.style.background = hx; syncVars();
+    hexLabel.textContent = hx.toUpperCase(); sw.style.background = hx;
     if (document.activeElement !== input) input.value = hx; input.removeAttribute('aria-invalid');
     buttons.forEach(([p, b]) => b.setAttribute('aria-pressed', String(p === hx)));
   }
-  function commit() { const hx = hsvToHex(pk); st.token = ''; st.bg = hx === '#ffffff' ? '' : hx; applyPage(); sync(); paint(); }
+  function commit() { const hx = hsvToHex(pk); st.bg = hx === '#ffffff' ? '' : hx; applyPage(); sync(); paint(); }
   drag(sv, (x, y) => { pk.s = x; pk.v = 1 - y; commit(); });
   drag(hue, (x) => { pk.h = x * 359.99; commit(); });
   sv.onkeydown = (e) => { const k = e.shiftKey ? .1 : .02, d = { ArrowLeft: [-k, 0], ArrowRight: [k, 0], ArrowUp: [0, k], ArrowDown: [0, -k] }[e.key]; if (d) { e.preventDefault(); pk.s = clamp(pk.s + d[0]); pk.v = clamp(pk.v + d[1]); commit(); } };
@@ -232,16 +229,15 @@ function bgPicker() {
   function varSelect() {
     const box = el('div', 'lab-iconsel'), icon = el('span'), sel = el('select', 'lab-vars');
     icon.innerHTML = '<svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"><path d="M1.5 3h2.2M6.3 3h4.2M1.5 9h4.2M8.3 9h2.2"/><circle cx="5" cy="3" r="1.3"/><circle cx="7" cy="9" r="1.3"/></svg>';
-    sel.setAttribute('aria-label', 'Project color variable'); box.title = 'Project color variables';
-    const none = el('option', '', 'Project color variable'); none.value = ''; sel.append(none);
+    sel.setAttribute('aria-label', 'Fill the background from a project color variable'); box.title = 'Fill the background from a project color variable';
+    const none = el('option', '', 'Fill from variable'); none.value = ''; sel.append(none);
     COLORS.forEach((c) => { const o = el('option', '', c.name); o.value = c.name; o.title = c.value; sel.append(o); });
-    syncVars = () => { sel.value = st.token || ''; box.toggleAttribute('data-on', !!st.token); };
+    // A dropdown, not a setting: it holds no value. Picking a variable hands its color to the background control and the menu returns to rest (so the same variable can be picked again).
     sel.onchange = () => {
-      const c = COLORS.find((x) => x.name === sel.value); st.token = c ? c.name : '';
-      if (c) { const hx = resolveColor(c.value) || '#ffffff'; st.bg = hx === '#ffffff' ? '' : hx; pk = hexToHsv(hx); }
-      applyPage(); sync(); paint();
+      const c = COLORS.find((x) => x.name === sel.value); sel.value = ''; if (!c) return;
+      const hx = resolveColor(c.value) || '#ffffff'; pk = hexToHsv(hx); st.bg = hx === '#ffffff' ? '' : hx; applyPage(); sync(); paint();
     };
-    box.append(icon, sel); syncVars(); return box;
+    box.append(icon, sel); return box;
   }
 }
 function drawTools() {
