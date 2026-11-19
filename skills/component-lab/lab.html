@@ -31,7 +31,7 @@
   .lab-head svg { width: 12px; height: 12px; color: #525252; }
   .lab-slot { width: max-content; max-width: 100%; }
   .lab-slot[data-fixed] { width: var(--slot-w); }
-  .lab-right { display: flex; flex-direction: column; gap: 16px; flex: none; padding: 16px 8px; border-left: 1px solid var(--line); }
+  .lab-right { display: flex; flex-direction: column; gap: 16px; flex: none; padding: 16px 8px; } /* no border-left: the last grid column's border-right is already that line */
   .lab-right[hidden] { display: none; }
   .lab-field { display: grid; gap: 8px; justify-items: start; }
   .lab-flabel { padding-left: 8px; color: var(--dim); }
