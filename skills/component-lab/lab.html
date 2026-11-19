@@ -97,7 +97,7 @@ const COLORS = [ // EXAMPLES, replace with ALL of the project's color variables 
   { name: '--color-background-subtle', value: '#fafafa' },
   { name: '--color-background-inverted-base', value: '#171717' },
 ];
-const CELL_WIDTH = 0; // px width of the component's slot. 0 = its natural size (buttons, chips). Set it for components that fill their container (inputs, cards, rows), e.g. 320.
+const CELL_WIDTH = 0; // px width of the component's slot. 0 = its natural size (buttons, chips). Set it for components that fill their container (inputs, cards, rows), e.g. 320: the width the component needs, not a guess. The grid measures the real content and widens to fit, so nothing overflows.
 const SCENARIOS = [ // { id, label, group, props, force?, variants? } variants: ids it applies to; omit for all variants
   { id: 'default', label: 'default', group: 'Data', props: {} },
   { id: 'loading', label: 'loading', group: 'Data', props: { loading: true } },
@@ -253,6 +253,7 @@ function drawGrid() {
   // first cell: the live, interactive component
   const live = el('div', 'lab-cell lab-live'); const head = el('div', 'lab-head'); head.innerHTML = STAR; head.append(el('span', '', 'Interactive'));
   live.append(head, slot(render(st.variant, (scenarios()[0] || {}).props || {}, '', axes()))); g.append(live);
+  ['click', 'input', 'keyup'].forEach((t) => live.addEventListener(t, () => requestAnimationFrame(layoutGrid))); // the live component may grow as the user uses it
   // then a snapshot of every state of the selected variant
   scenarios().forEach((s) => {
     const c = el('div', 'lab-cell'); const h = el('div', 'lab-head'); h.append(el('span', '', s.label));
@@ -260,14 +261,21 @@ function drawGrid() {
   });
   layoutGrid();
 }
-// Columns follow the component: wide enough that nothing overflows or overlaps, as many as fit, and the last row is filled out so the grid is always a complete rectangle (1 cell or 40).
+// Nothing overflows its cell. The columns are sized from what is really rendered, including parts that stick out of the component (wide children, menus, popups), rows grow for parts that hang below, and the grid scrolls when the window is narrower. As many columns fit as the width allows, and the last row is filled out so the grid is always a complete rectangle (1 cell or 40).
+function extent(slot) { // how far the slot's content reaches, right and down, from the slot's top left
+  const r = slot.getBoundingClientRect(); let right = r.right, bottom = r.bottom;
+  slot.querySelectorAll('*').forEach((e) => { if (getComputedStyle(e).position === 'fixed') return; const b = e.getBoundingClientRect(); right = Math.max(right, b.right); bottom = Math.max(bottom, b.bottom); });
+  return { w: right - r.left, h: bottom - r.top, slotH: r.height };
+}
 function layoutGrid() {
   const g = $('#grid'); g.querySelectorAll('.lab-fill').forEach((n) => n.remove());
   const cells = [...g.querySelectorAll('.lab-cell')]; if (!cells.length) return;
-  const natural = Math.max(...cells.map((c) => c.querySelector('.lab-slot').getBoundingClientRect().width));
-  const colW = Math.max(160, Math.ceil(CELL_WIDTH || natural) + 32);
+  const slots = cells.map((c) => c.querySelector('.lab-slot')); slots.forEach((s) => { s.style.minHeight = ''; });
+  const need = Math.max(CELL_WIDTH || 0, ...slots.map((s) => extent(s).w));
+  const colW = Math.max(160, Math.ceil(need) + 32);
   const cols = Math.max(1, Math.min(cells.length, Math.floor($('#mid').clientWidth / colW)));
   g.style.gridTemplateColumns = `repeat(${cols}, minmax(${colW}px, 1fr))`;
+  slots.forEach((s) => { const e = extent(s); if (e.h > e.slotH + .5) s.style.minHeight = Math.ceil(e.h) + 'px'; });
   for (let i = (cols - (cells.length % cols)) % cols; i > 0; i--) g.append(el('div', 'lab-cell lab-fill'));
   [...g.children].forEach((c, i) => c.toggleAttribute('data-last', i % cols === cols - 1)); // the panel's own border-left is the divider
 }
