@@ -57,6 +57,8 @@
   .lab-slot { width: max-content; max-width: 100%; }
   .lab-slot[data-fixed] { width: var(--slot-w); }
   .lab-right { display: flex; flex-direction: column; gap: 16px; flex: none; padding: 16px 8px; border-left: 1px solid var(--line); } /* the full-height divider; the last grid column draws no right border of its own */
+  .lab-right { min-width: 150px; } /* at least 150px wide when expanded, even for a single short control */
+  .lab-right[data-folded] { min-width: 0; }
   .lab-right[hidden] { display: none; }
   .lab-field { display: grid; gap: 8px; justify-items: start; }
   .lab-flabel { padding-left: 8px; color: var(--dim); }
