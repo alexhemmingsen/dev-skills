@@ -44,12 +44,13 @@
   .lab-mid { flex: 1; min-width: 0; overflow: auto; }
   .lab-grid { display: grid; grid-auto-rows: minmax(100px, auto); }
   .lab-cell { display: flex; flex-direction: column; align-items: flex-start; gap: 12px; min-width: 0; padding: 16px; border-right: 1px solid var(--line); border-bottom: 1px solid var(--line); pointer-events: none; user-select: none; }
+  .lab-cell[data-last] { border-right: 0; }
   .lab-live { pointer-events: auto; user-select: auto; }
   .lab-head { display: flex; align-items: center; gap: 10px; color: var(--dim); }
   .lab-head svg { width: 12px; height: 12px; color: var(--icon); }
   .lab-slot { width: max-content; max-width: 100%; }
   .lab-slot[data-fixed] { width: var(--slot-w); }
-  .lab-right { display: flex; flex-direction: column; gap: 16px; flex: none; padding: 16px 8px; } /* no border-left: the last grid column's border-right is already that line */
+  .lab-right { display: flex; flex-direction: column; gap: 16px; flex: none; padding: 16px 8px; border-left: 1px solid var(--line); } /* the full-height divider; the last grid column draws no right border of its own */
   .lab-right[hidden] { display: none; }
   .lab-field { display: grid; gap: 8px; justify-items: start; }
   .lab-flabel { padding-left: 8px; color: var(--dim); }
@@ -220,6 +221,7 @@ function layoutGrid() {
   const cols = Math.max(1, Math.min(cells.length, Math.floor($('#mid').clientWidth / colW)));
   g.style.gridTemplateColumns = `repeat(${cols}, minmax(${colW}px, 1fr))`;
   for (let i = (cols - (cells.length % cols)) % cols; i > 0; i--) g.append(el('div', 'lab-cell lab-fill'));
+  [...g.children].forEach((c, i) => c.toggleAttribute('data-last', i % cols === cols - 1)); // the panel's own border-left is the divider
 }
 function drawControls() {
   const c = $('#controls'); c.hidden = !AXES.length; if (!AXES.length) return;
