@@ -35,13 +35,14 @@ Collect the project's **color variables** for the background dropdown with one s
 ### Phase 3: Fork and build
 
 1. **Fork.** Copy the component's markup, styles and icon SVGs into a folder named `ahem-skill-<component>`, and trim only what the lab stubs. The fork is the component exactly: markup, its own icons (the SVGs from its icon source), images, fonts, sizes, spacing, colors, radii, shadows. It sits alone on the lab's page background with only its own fill behind it (a button's color, a card's surface, a selected row's highlight), so a nav item from a white sidebar renders without the sidebar's white. An asset you cannot find: say so and ask.
+   - **Not a web project** (SwiftUI, Android, anything without web code): there is no markup to copy, so redraw the component in HTML and CSS from its source, reading layout, spacing, fonts, colors, radii and shadows from the view code. Platform icons (SF Symbols and the like) cannot be copied, so draw the closest SVG and tell the user which glyphs are approximations.
 2. **Write it fast.** Plain CSS or inline styles with hardcoded values, in whatever form gets it on screen. The project's conventions return at lift-out. A particular width belongs in the fork's own CSS.
 3. **Make it testable.** Stub every callback and side effect, so the interactive cell does nothing real (Delete deletes nothing). Give every `:hover`, `:focus-visible` and `:active` style a twin selector keyed on `data-force`, which the lab sets on a grid cell to show the state with no mouse: `.btn:hover, .btn[data-force="hover"] { ... }`. Write scenarios with product-shaped copy and plausible values.
 4. **Fill the page.** Copy [lab.html](lab.html) into the same folder and edit only its `Per run` block: name, variants, axes, `COLORS`, scenarios (`id`, `label`, `group`, `props`, optional `force` and `variants`) and `render`, which mounts the fork. The rest stays as it is, so the lab looks the same on every run.
 5. **Mount it.**
    - **Web app with a dev server:** reach the lab with the search param `?ahem-skill=<component>` (kebab-case, e.g. `?ahem-skill=text-input`) on the page the app already serves, so hot reload works and the fork imports the component's own modules. Add one guard where the whole app is rendered (React: `main.tsx` or the root `App`; Next: a small client component rendered from the root layout; the equivalent elsewhere). When the param is present it returns the lab instead of the app, so no page, layout, effect, request or redirect underneath runs. Put it inside the providers the component needs (theme, i18n). The lab's root is a fixed full-viewport overlay; if it sits in a container with `transform`, `filter`, `backdrop-filter`, `will-change` or `contain`, render it through a portal to `body`. Mark the guard with a comment containing `ahem-skill` (`// ahem-skill`): it is the only edit to existing code, and the cleanup search finds it by that marker.
-   - **No app and no dev server:** one self-contained HTML file in the working directory.
-6. **Take the user there.** Start the app's dev server if it is not running, open `http://localhost:<port>/?ahem-skill=<component>` in the browser (`open <url>` on macOS, `xdg-open` on Linux) and print the URL. For the standalone file, open its path. Opening the lab is the hand-off; the user does the looking.
+   - **No web dev server** (SwiftUI, Android, a plain static site, no project): the lab is the standalone `lab.html`, edited in place. Save it as `ahem-skill-<component>.html` in a temporary directory outside the project, so nothing enters the repo, with the redrawn component in its `render`. The user refreshes the page to see each edit.
+6. **Take the user there.** Start the app's dev server if it is not running, open `http://localhost:<port>/?ahem-skill=<component>` in the browser (`open <url>` on macOS, `xdg-open` on Linux) and print the URL. For the standalone file, open its path in the browser. Opening the lab is the hand-off; the user does the looking.
 
 **Done when** the lab is open in the user's browser, served from inside the app.
 
@@ -53,13 +54,13 @@ Print the axes and states you found in a few lines. Then the loop: the user says
 
 ### Phase 5: Lift out and delete the lab
 
-1. Translate the fork's changes into the real component, now in the project's conventions: its tokens, utility classes, naming and file layout.
+1. Translate the fork's changes into the real component, now in the project's conventions: its tokens, utility classes, naming and file layout. For a non-web project the lab is the design spec: implement what it settled in the project's own language and components.
 2. Remove every `data-force` twin selector and any lab-only props from the real component.
-3. **Delete the lab, always, without waiting to be asked.** Remove the `ahem-skill-<component>` folder and the guard (the block marked `ahem-skill`) with its import.
+3. **Delete the lab, always, without waiting to be asked.** Remove the `ahem-skill-<component>` folder and the guard (the block marked `ahem-skill`) with its import, or, for a standalone file, the `ahem-skill-<component>.html` file.
 4. Prove it is gone: a search of the repo for `ahem-skill` and for `data-force` finds nothing, and `git status` lists no lab path. Stop the dev server if you started it.
 5. Run the project's checks, now that the work is production code.
 
-**Done when** the real component shows the result, the repo has no trace of the lab (zero hits for `ahem-skill` and `data-force`), and the checks pass.
+**Done when** the real component shows the result (for a non-web project, the SwiftUI or native code implements what the HTML settled), the repo has no trace of the lab (zero hits for `ahem-skill` and `data-force`), and the checks pass.
 
 When the user drops the work ("never mind", "scrap it"), run steps 3 and 4 only.
 
