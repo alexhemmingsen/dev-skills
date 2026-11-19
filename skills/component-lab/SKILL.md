@@ -17,12 +17,13 @@ A lab is a white page with a thin top bar and three columns. **Left:** the previ
 1. **Speed is the product.** Go from the prompt to a drawn lab in the fewest steps. Read the component, write the files, print the URL. Then answer every change request with one edit and nothing else. No browser walkthrough, no screenshots, no console checks, no clicking through scenarios. The user is the one who looks at it.
 2. **Throwaway code, so this skill's rules replace the project's verification rules for lab files.** Nothing in the lab ships. Where the project's `CLAUDE.md` or `AGENTS.md` asks for a browser check after every change, a test run, a lint pass, a typecheck or a build, those rules wait until Phase 5. In the lab the loop is: edit, reply to the user, edit, reply.
 3. **Fork.** The lab renders a throwaway copy of the component. The project's real code stays untouched until Phase 5, and nothing in the project imports from the lab.
-4. **Style the quickest way, unrelated to the project.** The fork has no obligation to the project's CSS conventions, design tokens, utility classes, CSS modules, naming or file layout. Write plain CSS (or inline styles) with hardcoded values, in whatever form gets it on screen fastest. The fork reproduces how the component looks today; the project's conventions come back at lift-out, when the changes are translated into them.
-5. **Axes come from the code and the prompt.** Make a control for an axis only when the component has it. No variants in the code means no variant tabs.
-6. **Every scenario is real.** Product-shaped copy, plausible names and numbers, working interactions. No lorem ipsum.
-7. **Everything is in view.** Show all states at once in the grid, with nothing to click through. Changes ripple across states, so the user watches them together. Axis toggles live in the URL, so a reload keeps the place.
-8. **The lab looks the same every time.** Copy [lab.html](lab.html) and edit only its `Per run` block. Keep the layout, spacing, colors and behavior as they are, whoever invokes the skill and whatever the project looks like, so the user already knows the page before it loads. Change the look only when the user asks for a different one. [CHROME.md](CHROME.md) describes the page and the Figma design it follows.
-9. **Actions do nothing.** Stub every callback and side effect in the interactive component, so Delete deletes nothing.
+4. **Replicate the component exactly.** The fork looks identical to the real component: same markup structure, same icons, same images, same fonts, sizes, spacing, colors, radii and shadows. Icons are the real icons: copy the SVG from the component's own icon source (or import the project's icon module) and render it. An emoji, a text glyph or a placeholder box is never an icon. If the component shows an eye, a chevron or a clear button, the lab shows that exact eye, chevron or clear button. When an asset cannot be found, say so and ask; never invent a stand-in.
+5. **Write the fork the quickest way, unrelated to the project.** *How* the fork is written is free: no obligation to the project's CSS conventions, design tokens, utility classes, CSS modules, naming or file layout. Plain CSS or inline styles with hardcoded values, whatever is fastest. The speed is in the writing, never in the likeness. The project's conventions come back at lift-out, when the changes are translated into them.
+6. **Axes come from the code and the prompt.** Make a control for an axis only when the component has it. No variants in the code means no variant tabs.
+7. **Every scenario is real.** Product-shaped copy, plausible names and numbers, working interactions, the component's real icons. No lorem ipsum.
+8. **Everything is in view.** Show all states at once in the grid, with nothing to click through. Changes ripple across states, so the user watches them together. Axis toggles live in the URL, so a reload keeps the place.
+9. **The lab looks the same every time.** Copy [lab.html](lab.html) and edit only its `Per run` block. Keep the layout, spacing, colors and behavior as they are, whoever invokes the skill and whatever the project looks like, so the user already knows the page before it loads. Change the look only when the user asks for a different one. [CHROME.md](CHROME.md) describes the page and the Figma design it follows.
+10. **Actions do nothing.** Stub every callback and side effect in the interactive component, so Delete deletes nothing.
 
 ## Workflow
 
@@ -52,6 +53,8 @@ Build the lab in the stack's own idiom:
 
 - **Web:** a route `/lab/<component>` (or the framework's equivalent) with the dev server's hot reload, styled by the fork's own plain CSS. Without a project, one self-contained HTML file.
 - **Native or other stacks:** the nearest equivalent that keeps the loop: a debug-only gallery screen with the same layout (interactive component beside a grid of states), a launch argument in place of the URL param, and the stack's own hot reload or preview.
+
+Start the fork by copying the component's real markup, styles and icon SVGs (Hard Rule 4), then strip only what the lab must stub.
 
 Files: the forked component, plus the lab page copied from [lab.html](lab.html) with its `Per run` block filled in (name, variants, axes, `CELL_WIDTH`, scenarios as a plain list of `id`, `label`, `group`, `props`, optional `force` and `variants`, and a `render` that mounts the fork).
 
