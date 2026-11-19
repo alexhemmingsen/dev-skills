@@ -8,8 +8,9 @@
   /* page colors: the background color control sets --bg, and JS derives the rest as its contrast */
   :root { --bg: #fff; --fg: #000; --dim: rgba(0,0,0,.5); --line: rgba(0,0,0,.08); --icon: rgba(0,0,0,.68); --gold: #b7791f; --pill: #fff; --chev: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12' fill='none' stroke='black' stroke-width='1.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M2.5 4.5 6 8l3.5-3.5'/%3E%3C/svg%3E"); }
   * { box-sizing: border-box; }
-  html, body { height: 100%; margin: 0; background: var(--bg); }
-  body { display: flex; flex-direction: column; background: var(--bg); color: var(--fg); font: 12px/normal Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; letter-spacing: .018px; }
+  html, body { margin: 0; background: var(--bg); }
+  /* The lab owns the whole viewport (fixed, over whatever layout the app wraps around the route), so it never depends on html, body or app containers being full height. */
+  .lab { position: fixed; inset: 0; z-index: 2147483000; display: flex; flex-direction: column; background: var(--bg); color: var(--fg); font: 12px/normal Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; letter-spacing: .018px; }
   /* top bar: breadcrumb left, page controls right */
   .lab-top, .lab-right { color-scheme: var(--scheme, light); }
   .lab-top { display: flex; align-items: center; gap: 10px; flex: none; padding: 16px; border-bottom: 1px solid var(--line); }
@@ -72,6 +73,7 @@
 </style>
 </head>
 <body>
+<div class="lab">
 <header class="lab-top">
   <span>Component lab</span><i class="lab-dot"></i><span class="lab-crumb" id="crumb"></span>
   <div class="lab-tools" id="tools"></div>
@@ -79,6 +81,7 @@
 <div class="lab-cols">
   <section class="lab-mid" id="mid"><div class="lab-grid" id="grid"></div></section>
   <aside class="lab-right" id="controls"></aside>
+</div>
 </div>
 <script>
 // ---- Per run: replace these ----
