@@ -10,7 +10,7 @@ Invoked with a component ("lets work on the action button"), start at Phase 1. I
 
 **The lab is throwaway.** It is a scratch surface beside the project, not part of it. It changes none of the project's code, nothing imports from it, and it is deleted when the work is done. Treat every lab file as disposable.
 
-A lab is a plain white page with a white top bar, split in two. On the left sits the component, interactive, with every action stubbed. On the right is a grid of every state, divided by thin lines, each cell a small label above the real component. You edit the fork, the page updates, and the user sees the change across all states at once. When the user says **lift out**, the work moves into the real component and the lab is deleted.
+A lab is a white page with a thin top bar and three columns. **Left:** the preview, with the variant switch on top (only if the component has variants), a background-color chip, then the interactive component with every action stubbed. **Middle:** a grid of non-interactive snapshots of every variant and state, each cell a small label above the real component, divided by thin lines. **Right:** a grey panel of global controls that change every instance at once (theme, size, shape, whatever the component has). You edit the fork, the page updates, and the user sees the change across all states at once. When the user says **lift out**, the work moves into the real component and the lab is deleted.
 
 ## Hard Rules
 
@@ -20,8 +20,8 @@ A lab is a plain white page with a white top bar, split in two. On the left sits
 4. **Style the quickest way, unrelated to the project.** The fork has no obligation to the project's CSS conventions, design tokens, utility classes, CSS modules, naming or file layout. Write plain CSS (or inline styles) with hardcoded values, in whatever form gets it on screen fastest. The fork reproduces how the component looks today; the project's conventions come back at lift-out, when the changes are translated into them.
 5. **Axes come from the code and the prompt.** Make a control for an axis only when the component has it. No variants in the code means no variant tabs.
 6. **Every scenario is real.** Product-shaped copy, plausible names and numbers, working interactions. No lorem ipsum.
-7. **Everything is in view.** Show all states at once, with no sidebar to click through. Changes ripple across states, so the user watches them together. Axis toggles live in the URL, so a reload keeps the place.
-8. **The lab looks the same every time.** Copy [lab.html](lab.html) and edit only its `Per run` block. Keep the layout, spacing, colors and behavior as they are, whoever invokes the skill and whatever the project looks like, so the user already knows the page before it loads. Change the look only when the user asks for a different one. [CHROME.md](CHROME.md) describes the page.
+7. **Everything is in view.** Show all states at once in the grid, with nothing to click through. Changes ripple across states, so the user watches them together. Axis toggles live in the URL, so a reload keeps the place.
+8. **The lab looks the same every time.** Copy [lab.html](lab.html) and edit only its `Per run` block. Keep the layout, spacing, colors and behavior as they are, whoever invokes the skill and whatever the project looks like, so the user already knows the page before it loads. Change the look only when the user asks for a different one. [CHROME.md](CHROME.md) describes the page and the Figma design it follows.
 9. **Actions do nothing.** Stub every callback and side effect in the interactive component, so Delete deletes nothing.
 
 ## Workflow
@@ -36,8 +36,9 @@ Resolve the prompt to files. "The buttons" is a **family**: every variant, one r
 
 Read the component file and the types it imports, nothing wider. Skip the rest of the repo. Find what can change. Two kinds:
 
-- **Variant axes** are what the thing *is*: `variant`, `kind`, `intent`, separate components in a family, `size`.
-- **State axes** are what it is *doing*: boolean props (`disabled`, `loading`, `collapsed`), union props (`status`), data branches (empty, one, many, long text, error), context and store values it reads, CSS pseudo-states (`:hover`, `:focus-visible`, `:active`), breakpoints, dark mode.
+- **Variant axes** are what the thing *is*: `variant`, `kind`, `intent`, separate components in a family. They become the variant switch.
+- **Global axes** change the look of *all* instances at once: theme, `size`, shape or rounding, density, width. They become the controls panel on the right.
+- **State axes** are what it is *doing*, and fill the grid: boolean props (`disabled`, `loading`, `collapsed`), union props (`status`), data branches (empty, one, many, long text, error), context and store values it reads, CSS pseudo-states (`:hover`, `:focus-visible`, `:active`), breakpoints, dark mode.
 
 Use a story or fixture only when the component file leaves the cases unclear.
 

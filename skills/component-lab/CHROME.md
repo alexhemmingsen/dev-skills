@@ -1,39 +1,47 @@
 # The Lab Chrome
 
-The chrome is harness, not design, and it looks the same on every run. Copy [lab.html](lab.html); the spec below describes what it does. Only the component name, variants, axis toggles and scenarios change per run. It is a plain white page with thin grey dividers, so it reads as chrome on any project. It turns dark only when the component has a theme axis and the user picks dark.
+The chrome is harness, not design, and it looks the same on every run. It follows the Figma design `heapsgo-exploration-design`, node `447:6243`. Copy [lab.html](lab.html); this file describes what it does. Per run, only the component name, variants, global controls and scenarios change.
 
 ## Layout
 
-A white page, split in two, with a white top bar. Thin dividers separate the bar, the two halves and every grid cell.
+White page, a thin top bar, then three columns split by hairlines (`rgba(0,0,0,.08)`). Inter 12px throughout.
 
 ```
-┌───────────────────────────────────────────────────────────────────┐
-│ Button  [Primary][Danger]            size [sm][md][lg]  theme […] │
-├───────────────────┬───────────────────────────────────────────────┤
-│ INTERACTIVE       │ Primary · default │ Primary · loading │ Primary · … │
-│                   ├───────────────────┼───────────────────┼─────────────┤
-│   ┌─────────┐     │      [ Save ]     │     [Saving…]     │   [ Save ]  │
-│   │  Save   │     ├───────────────────┼───────────────────┼─────────────┤
-│   └─────────┘     │ Danger · default  │ Danger · loading  │ Danger · …  │
-│                   │     [Delete]      │    [Deleting]     │   [Delete]  │
-└───────────────────┴───────────────────┴───────────────────┴─────────────┘
+┌──────────────────────────────────────────────────────────────────────────┐
+│ Component lab · Buttons                                                  │
+├──────────────────────┬─────────────────────────────────────┬─────────────┤
+│ Preview              │ Action · default │ Action · loading │ »           │
+│ [Action][Neutral]    │                  │                  │ Shape       │
+├──────────────────────┼──────────────────┼──────────────────│ [Round][Edgy]
+│ ▢ Background color   │ Action · hover   │ Action · focus   │ Size        │
+├──────────────────────┼──────────────────┼──────────────────│ [S][M][L]   │
+│                      │ Neutral · default│ Neutral · loading│ Theme       │
+│     [  Save  ]       │                  │                  │ [Light][Dark]
+└──────────────────────┴──────────────────┴──────────────────┴─────────────┘
 ```
 
-- **Top bar.** White. Component name, a variant switch (only if there is more than one variant), and one toggle group per other axis the component has (size, theme, width). Nothing for an axis the component lacks.
-- **Left half: the interactive component.** One live instance, labelled "Interactive", centered. Real hover, focus and typing, with every action stubbed (see Stubbing). It shows the variant chosen in the variant switch.
-- **Right half: the grid.** One cell per variant and scenario, divided by horizontal and vertical lines. Each cell has a small label (`variant · scenario`, or just `scenario` with one variant) above the real component at real size. Scenarios keep their group order, so related states sit together.
+- **Top bar.** `Component lab`, a dot, then the component name in grey.
+- **Left column: the preview.** Top: the **variant switch** under a "Preview" label, shown only when the component has more than one variant (variants are what the thing *is*, not its states). Then a **Background color** chip that sets the preview area's background (a native color input, kept in the URL as `bg`). Below: the **preview area**, with the live interactive component centered, every action stubbed (see Stubbing). It shows the variant chosen in the switch.
+- **Middle: the grid.** A snapshot of every variant and state, one cell per variant and scenario, divided by horizontal and vertical lines. Each cell has a small grey label (`variant · scenario`, or just `scenario` with one variant) above the real component at real size. Cells are not interactive: no hover, no clicks. Scenarios keep their group order.
+- **Right column: global controls.** A light grey panel (`#fafafa`) with one labelled segmented control per **global axis**, meaning anything that changes the look of *all* instances at once: theme, size, shape or rounding, density, width. A chevrons button at the top folds the panel. With no global axes, the panel is hidden.
+
+The segmented control is the one control style: a rounded track (`rgba(0,0,0,.08)`), the selected option as a white pill with a hairline shadow.
 
 ## Stubbing
 
-The interactive component behaves as it does in the app, with no side effects. Replace every callback prop with a no-op (a toast or counter is fine to show it fired), never call the network or write to a store, and feed it mock data from the scenarios. Pressing Delete deletes nothing.
+The preview component behaves as it does in the app, with no side effects. Replace every callback prop with a no-op, never call the network or write to a store, and feed it mock data from the scenarios. Pressing Delete deletes nothing.
 
 ## URL
 
-Axis choices live in the query string, written with `history.replaceState`: `?variant=<id>&size=lg&theme=dark`. Missing params fall back to the first value of each axis. Load reads the URL once.
+Every control lives in the query string, written with `history.replaceState`: `?variant=<id>&shape=edgy&size=lg&theme=dark&bg=%23ff0000`. Missing params fall back to the first value of each axis. Load reads the URL once.
+
+## Axes and theme
+
+Global axes set `data-<key>` (`data-theme`, `data-size`, `data-shape`) on the preview area and on every grid cell, and pass the values to `render`. The chrome itself never changes with them. `data-theme="dark"` turns the preview area and the cells dark (`#141416`), unless the user picked a background color for the preview.
 
 ## Forced states
 
-A scenario may carry `force` (`hover`, `focus`, `pressed`). The harness sets `data-force` on that cell's component, so the fork's twin selectors (`.btn:hover, .btn[data-force="hover"]`) render it with no mouse. The interactive component never gets `data-force`. A scenario can combine data and force (`cancelled` + `hover`).
+A scenario may carry `force` (`hover`, `focus`, `pressed`). The harness sets `data-force` on that cell's component, so the fork's twin selectors (`.btn:hover, .btn[data-force="hover"]`) render it with no mouse. The preview component never gets `data-force`. A scenario can combine data and force (`cancelled` + `hover`).
 
 ## Template
 
