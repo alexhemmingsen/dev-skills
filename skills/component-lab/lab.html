@@ -8,13 +8,13 @@
 HOW THIS PAGE BEHAVES. Copy it and edit only the "Per run" block.
 
 LAYOUT  Top bar: breadcrumb, variant select (only with 2+ variants), then the background color chip, its color picker and the project-color dropdown. Body: the grid, then a right panel of global controls (folds, at least 150px wide, hidden when there are no axes). The root .lab is position:fixed, inset:0, so it fills the viewport whatever the app wraps around it.
-GRID    First cell: the live component, interactive, with a gold star and "Interactive". Every other cell: one snapshot per scenario of the selected variant, not interactive. Columns are measured from what really rendered (wide children, menus, popups), rows grow for parts that hang below, the last row is filled so the grid is a full rectangle, and the live cell re-measures after use. No widths are configured: a component that fills its container fills its slot (max 360px).
+GRID    First cell: the live component, interactive, tagged with a yellow "Interactive" tag. Every other cell: one snapshot per scenario of the selected variant, not interactive. Columns are measured from what really rendered (wide children, menus, popups), rows grow for parts that hang below, the last row is filled so the grid is a full rectangle, and the live cell re-measures after use. No widths are configured: a component that fills its container fills its slot (max 360px).
 STATE   Every control lives in the URL: variant, each axis key, bg. Axes set data-<key> on every slot and style the components only. A scenario's force sets data-force on its cell.
 COLOR   The background chip colors the whole page and the lab's own text, icons and lines follow in a contrast color (WCAG). color-scheme is set on the lab's chrome only. The project-color dropdown holds no value: it hands a color to the chip and rests. COLORS lists raw-value variables only.
 -->
 <style>
   /* page colors: the background color control sets --bg, and JS derives the rest as its contrast */
-  :root { --bg: #fff; --fg: #000; --dim: rgba(0,0,0,.5); --line: rgba(0,0,0,.08); --icon: rgba(0,0,0,.68); --gold: #b7791f; --pill: #fff; --chev: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12' fill='none' stroke='black' stroke-width='1.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M2.5 4.5 6 8l3.5-3.5'/%3E%3C/svg%3E"); }
+  :root { --bg: #fff; --fg: #000; --dim: rgba(0,0,0,.5); --line: rgba(0,0,0,.08); --icon: rgba(0,0,0,.68); --pill: #fff; --chev: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12' fill='none' stroke='black' stroke-width='1.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M2.5 4.5 6 8l3.5-3.5'/%3E%3C/svg%3E"); }
   * { box-sizing: border-box; }
   html, body { margin: 0; background: var(--bg); }
   /* The lab owns the whole viewport (fixed, over whatever layout the app wraps around the route), so it never depends on html, body or app containers being full height. */
@@ -63,11 +63,12 @@ COLOR   The background chip colors the whole page and the lab's own text, icons 
   .lab-cell { display: flex; flex-direction: column; align-items: flex-start; gap: 12px; min-width: 0; padding: 16px; border-right: 1px solid var(--line); border-bottom: 1px solid var(--line); pointer-events: none; user-select: none; }
   .lab-cell[data-last] { border-right: 0; }
   .lab-live { pointer-events: auto; user-select: auto; }
-  .lab-head { display: flex; align-items: center; gap: 10px; color: var(--dim); }
+  .lab-head { display: flex; align-items: center; gap: 10px; min-height: 22px; color: var(--dim); } /* one height for every header, so components line up across a row */
   .lab-head svg { width: 12px; height: 12px; color: var(--icon); }
-  .lab-live .lab-head, .lab-live .lab-head svg { color: var(--gold); } /* gold marks the live preview */
-  html[data-pill] .lab-live .lab-head { padding: 2px 8px; margin: -2px 0 0 -8px; border-radius: 999px; background: #fbbf24; } /* on pages where no gold text is readable, the label carries its own gold pill */
-  html[data-pill] .lab-live .lab-head, html[data-pill] .lab-live .lab-head svg { color: #422006; }
+  /* the live cell's tag: its own yellow fill and border, so it reads on any page color */
+  .lab-live .lab-head { padding: 2px 4px; border: 1px solid #ffdf20; border-radius: 4px; background: #fef9c2; color: #a65f00; }
+  .lab-live .lab-head svg { color: #a65f00; }
+  .lab-ico { display: grid; place-items: center; width: 16px; height: 16px; }
   /* A component that fills its container fills this slot (capped at a typical form-column width); one with its own size keeps it. The grid then widens to whatever actually came out. */
   .lab-slot { width: 100%; max-width: 360px; }
   .lab-right { display: flex; flex-direction: column; gap: 16px; flex: none; padding: 16px 8px; border-left: 1px solid var(--line); } /* the full-height divider; the last grid column draws no right border of its own */
@@ -165,9 +166,6 @@ function applyPage() {
   const dark = L <= .179, c = dark ? '255,255,255' : '0,0,0', r = document.documentElement.style;
   r.setProperty('--bg', hex); r.setProperty('--fg', dark ? '#fff' : '#000');
   r.setProperty('--dim', `rgba(${c},.5)`); r.setProperty('--line', `rgba(${c},.08)`); r.setProperty('--icon', `rgba(${c},.68)`);
-  const cr = (a) => (Math.max(L, a) + .05) / (Math.min(L, a) + .05); // contrast of each gold against the page
-  const gold = [['#b7791f', .238], ['#fbbf24', .579]].map(([g, l]) => [g, cr(l)]).sort((a, b) => b[1] - a[1])[0];
-  r.setProperty('--gold', gold[0]); document.documentElement.toggleAttribute('data-pill', gold[1] < 3);
   r.setProperty('--pill', dark ? 'rgba(255,255,255,.14)' : '#fff');
   r.setProperty('--pop', dark ? `color-mix(in srgb, ${hex}, #fff 12%)` : '#fff'); // the picker gets its own surface, so it never blends into the page
   r.setProperty('--chev', `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12' fill='none' stroke='${dark ? 'white' : 'black'}' stroke-width='1.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M2.5 4.5 6 8l3.5-3.5'/%3E%3C/svg%3E")`);
@@ -262,7 +260,7 @@ const STAR = '<svg viewBox="0 0 12 12" fill="currentColor"><path d="M6 .9l1.5 3.
 function drawGrid() {
   const g = $('#grid'); g.replaceChildren();
   // first cell: the live, interactive component
-  const live = el('div', 'lab-cell lab-live'); const head = el('div', 'lab-head'); head.innerHTML = STAR; head.append(el('span', '', 'Interactive'));
+  const live = el('div', 'lab-cell lab-live'); const head = el('div', 'lab-head'); const ico = el('span', 'lab-ico'); ico.innerHTML = STAR; head.append(ico, el('span', '', 'Interactive'));
   live.append(head, slot(render(st.variant, (scenarios()[0] || {}).props || {}, '', axes()))); g.append(live);
   ['click', 'input', 'keyup'].forEach((t) => live.addEventListener(t, () => requestAnimationFrame(layoutGrid))); // the live component may grow as the user uses it
   // then a snapshot of every state of the selected variant
