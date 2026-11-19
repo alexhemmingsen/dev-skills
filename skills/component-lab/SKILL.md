@@ -10,7 +10,7 @@ Invoked with a component ("lets work on the action button"), start at Phase 1. I
 
 **The lab is throwaway.** It is a scratch surface beside the project, not part of it. It changes none of the project's code, nothing imports from it, and it is always deleted when the work ends (Hard Rule 11). Treat every lab file as disposable.
 
-A lab is a white page with a thin top bar and three columns. **Left:** the preview, with a native variant select on top (only if the component has variants), a background-color chip, then the interactive component, in a 300px column that grows to fit a wider component with every action stubbed. **Middle:** a grid of non-interactive snapshots of every state of the selected variant, each cell a small label above the real component, divided by thin lines. **Right:** a grey panel of global controls that change every instance at once (theme, size, shape, whatever the component has). You edit the fork, the page updates, and the user sees the change across all states at once. When the user says **lift out**, the work moves into the real component and the lab is deleted.
+A lab is a white page with a thin top bar and a grid. **Top bar:** a native variant select (only if the component has variants) and a background-color chip that sets the page background. **Grid:** the first cell is the component, interactive, with every action stubbed; every other cell is a non-interactive snapshot of one state of the selected variant, a small label above the real component, divided by thin lines. **Right panel:** global controls that change every instance at once (theme, size, shape, whatever the component has). The theme styles the components only, never the page. You edit the fork, the page updates, and the user sees the change across all states at once. When the user says **lift out**, the work moves into the real component and the lab is deleted.
 
 ## Hard Rules
 
@@ -39,7 +39,7 @@ Resolve the prompt to files. "The buttons" is a **family**: every variant, one r
 Read the component file and the types it imports, nothing wider. Skip the rest of the repo. Find what can change. Two kinds:
 
 - **Variant axes** are what the thing *is*: `variant`, `kind`, `intent`, separate components in a family. They become the variant select.
-- **Global axes** change the look of *all* instances at once: theme, `size`, shape or rounding, density, width. They become the controls panel on the right.
+- **Global axes** change the look of *all* instances at once: theme, `size`, shape or rounding, density, width. They become the controls panel on the right. A theme axis styles the components only; the page background belongs to the background chip.
 - **State axes** are what it is *doing*, and fill the grid: boolean props (`disabled`, `loading`, `collapsed`), union props (`status`), data branches (empty, one, many, long text, error), context and store values it reads, CSS pseudo-states (`:hover`, `:focus-visible`, `:active`), breakpoints, dark mode.
 
 Use a story or fixture only when the component file leaves the cases unclear.

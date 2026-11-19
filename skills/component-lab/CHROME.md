@@ -4,27 +4,25 @@ The chrome is harness, not design, and it looks the same on every run. It follow
 
 ## Layout
 
-White page, a thin top bar, then three columns split by hairlines (`rgba(0,0,0,.08)`). Inter 12px throughout.
+White page, a thin top bar, then the grid and a controls panel, split by hairlines (`rgba(0,0,0,.08)`). Inter 12px throughout.
 
 ```
 ┌──────────────────────────────────────────────────────────────────────────┐
-│ Component lab · Buttons                                                  │
-├──────────────────────┬─────────────────────────────────────┬─────────────┤
-│ Variant              │ Action · default │ Action · loading │ »           │
-│ [Action        ⌄]    │                  │                  │ Shape       │
-├──────────────────────┼──────────────────┼──────────────────│ [Round][Edgy]
-│ Background color ▢   │ Action · hover   │ Action · focus   │ Size        │
-├──────────────────────┼──────────────────┼──────────────────│ [S][M][L]   │
-│                      │ Neutral · default│ Neutral · loading│ Theme       │
-│     [  Save  ]       │                  │                  │ [Light][Dark]
-└──────────────────────┴──────────────────┴──────────────────┴─────────────┘
+│ Component lab · Buttons          Variant [Action ⌄] │ Background color [#FFF ▢]│
+├──────────────────┬──────────────────┬──────────────────┬────────┬────────┤
+│ ★ Interactive    │ default          │ loading          │ …      │ »      │
+│   [  Save  ]     │   [  Save  ]     │   [ Saving… ]    │        │ Shape  │
+├──────────────────┼──────────────────┼──────────────────┼────────┤ [R][E] │
+│ disabled         │ hover            │ focus            │ …      │ Size   │
+│   [  Save  ]     │   [  Save  ]     │   [  Save  ]     │        │ [S][M] │
+└──────────────────┴──────────────────┴──────────────────┴────────┴────────┘
 ```
 
-- **Top bar.** `Component lab`, a dot, then the component name in grey.
-- **Left column: the preview.** Top: a **Variant** label over a native `<select>` (styled to the design: hairline border, 8px radius, chevron), shown only when the component has more than one variant (variants are what the thing *is*, not its states). Then a **Background color** chip (the label, then a swatch; a native color input kept in the URL as `bg`) that sets the preview area's background. Below: the **preview area**, with the live interactive component centered, every action stubbed (see Stubbing). It shows the variant chosen in the select. The column is **300px wide** and grows when the component is wider, until the component fits horizontally (capped at 60% of the window).
-- **Middle: the grid.** A snapshot of every state of the **selected variant** only. Switching the variant redraws the grid with that variant's states, and a scenario can list the `variants` it applies to (a textarea's resize handle, a password's show toggle). Each cell has a small grey label (the scenario) above the real component. Cells are divided by horizontal and vertical lines and are not interactive: no hover, no clicks. Scenarios keep their group order.
-  - **Any number of cells, always tidy.** There can be 1 cell or 40. Columns are as wide as the component needs (`CELL_WIDTH` for components that fill their container, like inputs and cards; the measured natural width otherwise), so nothing overflows or overlaps a neighbor. As many columns fit as the width allows, and the last row is filled with empty bordered cells so the grid is always a complete rectangle. Content sits top-left under the label, so labels and components line up across a row.
-- **Right column: global controls.** A light grey panel (`#fafafa`) with one labelled segmented control per **global axis**, meaning anything that changes the look of *all* instances at once: theme, size, shape or rounding, density, width. A chevrons button at the top folds the panel. With no global axes, the panel is hidden.
+- **Top bar.** Left: `Component lab`, a dot, the component name in grey. Right: a **Variant** label and a native `<select>` (styled to the design: hairline border, 8px radius, chevron), shown only when the component has more than one variant, then a thin divider, then **Background color**: a label and a chip (hex value and swatch, a native color input kept in the URL as `bg`). Variants are what the thing *is*, not its states.
+- **The page background.** The Background color chip sets the background of the grid area, the page the components sit on. It is the only thing that changes it. The top bar and the controls panel stay white.
+- **The grid.** One area, no left column. **The first cell is the interactive component**, headed by a star and "Interactive": real hover, focus and typing, every action stubbed (see Stubbing), showing the variant chosen in the select. Every other cell is a **snapshot of one state of the selected variant**, headed by a small grey label (the scenario). Snapshots are not interactive: no hover, no clicks. Switching the variant redraws the grid with that variant's states, and a scenario can list the `variants` it applies to (a textarea's resize handle, a password's show toggle). Scenarios keep their group order.
+  - **Any number of cells, always tidy.** There can be 1 cell or 40. Columns are as wide as the component needs (`CELL_WIDTH` for components that fill their container, like inputs and cards; the measured natural width otherwise), so nothing overflows or overlaps a neighbor. As many columns fit as the width allows, and the last row is filled with empty bordered cells so the grid is always a complete rectangle. Content sits top-left under the header, so headers and components line up across a row.
+- **Right panel: global controls.** A white panel with one labelled segmented control per **global axis**, meaning anything that changes the look of *all* instances at once: theme, size, shape or rounding, density, width. A chevrons button at the top folds the panel. With no global axes, the panel is hidden.
 
 The segmented control is the one control style: a rounded track (`rgba(0,0,0,.08)`), the selected option as a white pill with a hairline shadow.
 
@@ -38,7 +36,7 @@ Every control lives in the query string, written with `history.replaceState`: `?
 
 ## Axes and theme
 
-Global axes set `data-<key>` (`data-theme`, `data-size`, `data-shape`) on the preview area and on every grid cell, and pass the values to `render`. The chrome itself never changes with them. `data-theme="dark"` turns the preview area and the cells dark (`#141416`), unless the user picked a background color for the preview.
+Global axes set `data-<key>` (`data-theme`, `data-size`, `data-shape`) on each component's slot, and pass the values to `render`. They style **the components only**. The theme never changes the page or the chrome: a dark theme makes the components dark on whatever background the Background color chip holds. Only the Background color chip changes the page background.
 
 ## Forced states
 
