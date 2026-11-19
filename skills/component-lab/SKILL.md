@@ -51,7 +51,8 @@ Group the states by what they are (Data, Interaction, Layout, whatever the compo
 
 Build the lab in the stack's own idiom:
 
-- **Web:** a route `/lab/<component>` (or the framework's equivalent) with the dev server's hot reload, styled by the fork's own plain CSS. Without a project, one self-contained HTML file.
+- **Web app with a dev server:** the lab is **a route inside the app**, served by the app's own dev server, so hot module reload works and the fork can import the component's modules and icons. Read `package.json` and the folder layout to find the router (Next `app/` or `pages/`, React Router or Vite routes, Remix, SvelteKit, Nuxt, Astro, and so on), then add the route `/lab/<component>` the way that router adds any page. Put the fork and the lab page together in one folder named `lab` (for example `<routes>/lab/<component>/`), so deleting the folder deletes the lab. Port [lab.html](lab.html) into that route with its CSS and structure unchanged, and styled by the fork's own plain CSS. Never write the lab to `/tmp`, a scratchpad or any folder outside the app: a file there gets no hot reload and cannot import anything.
+- **No app and no dev server:** one self-contained HTML file, written into the user's working directory.
 - **Native or other stacks:** the nearest equivalent that keeps the loop: a debug-only gallery screen with the same layout (interactive component beside a grid of states), a launch argument in place of the URL param, and the stack's own hot reload or preview.
 
 Start the fork by copying the component's real markup, styles and icon SVGs (Hard Rule 4), then strip only what the lab must stub.
@@ -70,13 +71,13 @@ The harness sets `data-force` on that grid cell's component, so hover shows with
 
 Then **take the user there**, in the surface the stack uses:
 
-- **Web:** start the dev server if it is not running, then open the lab in their browser (`open <url>` on macOS, `xdg-open` on Linux) and print the URL. For the standalone file, open its path.
+- **Web app:** start the app's dev server if it is not running, then open the lab route (`http://localhost:<port>/lab/<component>`) in their browser (`open <url>` on macOS, `xdg-open` on Linux) and print the URL. For the standalone file, open its path.
 - **iOS:** build and launch the app in the simulator straight onto the lab screen (the launch argument), e.g. with `xcodebuild` and `xcrun simctl launch`, or the project's own run command.
 - **Other stacks:** open the lab in that stack's own viewer, emulator or preview.
 
 Opening the lab is the handoff, not a check. Do not look at it yourself.
 
-**Done when** the files are written and the lab is open for the user.
+**Done when** the files are in the app, served by its dev server, and the lab is open for the user.
 
 ### Phase 4: Talk and change
 
