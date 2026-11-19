@@ -55,8 +55,8 @@
   .lab-live .lab-head, .lab-live .lab-head svg { color: var(--gold); } /* gold marks the live preview */
   html[data-pill] .lab-live .lab-head { padding: 2px 8px; margin: -2px 0 0 -8px; border-radius: 999px; background: #fbbf24; } /* on pages where no gold text is readable, the label carries its own gold pill */
   html[data-pill] .lab-live .lab-head, html[data-pill] .lab-live .lab-head svg { color: #422006; }
-  .lab-slot { width: max-content; max-width: 100%; }
-  .lab-slot[data-fixed] { width: var(--slot-w); }
+  /* A component that fills its container fills this slot (capped at a typical form-column width); one with its own size keeps it. The grid then widens to whatever actually came out. */
+  .lab-slot { width: 100%; max-width: 360px; }
   .lab-right { display: flex; flex-direction: column; gap: 16px; flex: none; padding: 16px 8px; border-left: 1px solid var(--line); } /* the full-height divider; the last grid column draws no right border of its own */
   .lab-right { min-width: 150px; } /* at least 150px wide when expanded, even for a single short control */
   .lab-right[data-folded] { min-width: 0; }
@@ -97,7 +97,6 @@ const COLORS = [ // EXAMPLES, replace with ALL of the project's color variables 
   { name: '--color-background-subtle', value: '#fafafa' },
   { name: '--color-background-inverted-base', value: '#171717' },
 ];
-const CELL_WIDTH = 0; // px width of the component's slot. 0 = its natural size (buttons, chips). Set it for components that fill their container (inputs, cards, rows), e.g. 320: the width the component needs, not a guess. The grid measures the real content and widens to fit, so nothing overflows.
 const SCENARIOS = [ // { id, label, group, props, force?, variants? } variants: ids it applies to; omit for all variants
   { id: 'default', label: 'default', group: 'Data', props: {} },
   { id: 'loading', label: 'loading', group: 'Data', props: { loading: true } },
@@ -128,7 +127,7 @@ const scenarios = () => SCENARIOS.filter((s) => !s.variants || s.variants.includ
 function el(tag, cls, text) { const e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; }
 function sync() { const u = new URL(location); ['variant', 'bg', 'token', ...AXES.map((a) => a.key)].forEach((k) => st[k] ? u.searchParams.set(k, st[k]) : u.searchParams.delete(k)); history.replaceState(null, '', u); }
 // The slot carries the axes (data-theme, data-size, ...), so they style the components only.
-function slot(node) { const s = el('div', 'lab-slot'); AXES.forEach((a) => s.dataset[a.key] = st[a.key]); if (CELL_WIDTH) { s.dataset.fixed = ''; s.style.setProperty('--slot-w', CELL_WIDTH + 'px'); } s.append(node); return s; }
+function slot(node) { const s = el('div', 'lab-slot'); AXES.forEach((a) => s.dataset[a.key] = st[a.key]); s.append(node); return s; }
 function seg(label, key, options) {
   const f = el('div', 'lab-field'); if (label) f.append(el('div', 'lab-flabel', label));
   const s = el('div', 'lab-seg');
@@ -262,8 +261,8 @@ function drawGrid() {
   layoutGrid();
 }
 // Nothing overflows its cell. The columns are sized from what is really rendered, including parts that stick out of the component (wide children, menus, popups), rows grow for parts that hang below, and the grid scrolls when the window is narrower. As many columns fit as the width allows, and the last row is filled out so the grid is always a complete rectangle (1 cell or 40).
-function extent(slot) { // how far the slot's content reaches, right and down, from the slot's top left
-  const r = slot.getBoundingClientRect(); let right = r.right, bottom = r.bottom;
+function extent(slot) { // how far the component inside the slot really reaches, right and down, from the slot's top left
+  const r = slot.getBoundingClientRect(); let right = r.left, bottom = r.top;
   slot.querySelectorAll('*').forEach((e) => { if (getComputedStyle(e).position === 'fixed') return; const b = e.getBoundingClientRect(); right = Math.max(right, b.right); bottom = Math.max(bottom, b.bottom); });
   return { w: right - r.left, h: bottom - r.top, slotH: r.height };
 }
@@ -271,7 +270,7 @@ function layoutGrid() {
   const g = $('#grid'); g.querySelectorAll('.lab-fill').forEach((n) => n.remove());
   const cells = [...g.querySelectorAll('.lab-cell')]; if (!cells.length) return;
   const slots = cells.map((c) => c.querySelector('.lab-slot')); slots.forEach((s) => { s.style.minHeight = ''; });
-  const need = Math.max(CELL_WIDTH || 0, ...slots.map((s) => extent(s).w));
+  const need = Math.max(0, ...slots.map((s) => extent(s).w));
   const colW = Math.max(160, Math.ceil(need) + 32);
   const cols = Math.max(1, Math.min(cells.length, Math.floor($('#mid').clientWidth / colW)));
   g.style.gridTemplateColumns = `repeat(${cols}, minmax(${colW}px, 1fr))`;
