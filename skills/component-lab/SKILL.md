@@ -44,7 +44,7 @@ Read the component file and the types it imports, nothing wider. Skip the rest o
 
 Use a story or fixture only when the component file leaves the cases unclear.
 
-Also collect the project's **color variables** for the background dropdown: one search for CSS custom properties that hold colors (`--color-*`, `--bg-*`, theme blocks), the Tailwind theme or config, or a tokens file. Read their names and values only, never whole stylesheets. Use `var(--name)` as the value when the variable is a CSS custom property, since the lab runs inside the app and it resolves live. Leave the list empty when the project has none.
+Also collect the project's **color variables** for the background select: one search for CSS custom properties that hold colors (`--color-*`, `--bg-*`, theme blocks), the Tailwind theme or config, or a tokens file. Take **every** variable whose value is a raw color (hex, `rgb()`, `hsl()`, `oklch()`, `color()`), as `{ name, value }` with the raw value, and skip aliases like `var(--other)` and anything that is not a color. Read names and values only, never whole stylesheets. Leave the list empty when the project has none.
 
 Group the states by what they are (Data, Interaction, Layout, whatever the component has). Groups set the order of the grid, so related states sit together.
 

@@ -20,18 +20,11 @@
   .lab-grp { display: flex; align-items: center; gap: 4px; }
   .lab-tl { color: var(--dim); white-space: nowrap; }
   .lab-vr { width: 1px; height: 16px; background: var(--line); }
-  .lab-select, .lab-bg, .lab-iconbtn { height: 26px; }
+  .lab-select, .lab-bg { height: 26px; }
   .lab-select { padding: 0 32px 0 8px; border: 1px solid var(--line); border-radius: 8px; background: var(--bg) var(--chev) no-repeat right 10px center / 12px; color: var(--fg); font: inherit; letter-spacing: inherit; appearance: none; -webkit-appearance: none; cursor: pointer; }
   .lab-bg { position: relative; display: inline-flex; align-items: center; gap: 8px; padding: 0 8px; border: 1px solid var(--line); border-radius: 8px; color: var(--fg); cursor: pointer; }
   .lab-popwrap { position: relative; }
-  .lab-iconbtn { display: grid; place-items: center; padding: 0 8px; border: 1px solid var(--line); border-radius: 8px; background: none; color: var(--fg); cursor: pointer; }
-  .lab-iconbtn[aria-pressed="true"] { background: var(--line); }
-  .lab-iconbtn span { display: grid; place-items: center; width: 16px; height: 16px; }
-  .lab-iconbtn svg { width: 12px; height: 12px; }
-  .lab-toks { width: 260px; max-height: 300px; overflow: auto; gap: 2px; padding: 6px; }
-  .lab-tok { display: flex; align-items: center; gap: 8px; width: 100%; padding: 6px 8px; border: 0; border-radius: 8px; background: none; color: var(--fg); font: inherit; letter-spacing: inherit; text-align: left; cursor: pointer; }
-  .lab-tok:hover, .lab-tok[aria-pressed="true"] { background: var(--line); }
-  .lab-tok small { margin-left: auto; color: var(--dim); font-size: 11px; }
+  .lab-vars { max-width: 220px; text-overflow: ellipsis; }
   .lab-bg { font: inherit; letter-spacing: inherit; background: none; }
   .lab-pop { position: absolute; top: calc(100% + 8px); right: 0; z-index: 10; display: grid; gap: 12px; width: 232px; padding: 12px; border: 1px solid var(--line); border-radius: 12px; background: var(--pop, #fff); box-shadow: 0 12px 32px rgba(0,0,0,.14), 0 2px 6px rgba(0,0,0,.08); color-scheme: var(--scheme, light); }
   .lab-pop[hidden] { display: none; }
@@ -94,10 +87,10 @@ const AXES = [ // EXAMPLES, delete what the component lacks. Theme, size and sha
   { key: 'size', label: 'Size', values: [{ id: 'sm', label: 'Small' }, { id: 'md', label: 'Medium' }, { id: 'lg', label: 'Large' }] },
   { key: 'theme', label: 'Theme', values: [{ id: 'light', label: 'Light' }, { id: 'dark', label: 'Dark' }] }, // styles the components only, never the page
 ];
-const COLORS = [ // EXAMPLES, replace with the project's own color variables (CSS custom properties, Tailwind theme colors, token files), or [] when it has none: the dropdown next to the background color fills the page with one. value: any CSS color or var(--token); name: the variable, shown dim.
-  { label: 'Surface', name: '--color-surface', value: '#fafafa' },
-  { label: 'Surface inverted', name: '--color-surface-inverted', value: '#171717' },
-  { label: 'Accent', name: '--color-accent', value: '#f04438' },
+const COLORS = [ // EXAMPLES, replace with ALL of the project's color variables whose value is a raw color (hex, rgb(), hsl(), oklch()...). Skip aliases like var(--other) and non-colors. [] hides the select. name: the variable, value: its raw value.
+  { name: '--color-background-base', value: '#ffffff' },
+  { name: '--color-background-subtle', value: '#fafafa' },
+  { name: '--color-background-inverted-base', value: '#171717' },
 ];
 const CELL_WIDTH = 0; // px width of the component's slot. 0 = its natural size (buttons, chips). Set it for components that fill their container (inputs, cards, rows), e.g. 320.
 const SCENARIOS = [ // { id, label, group, props, force?, variants? } variants: ids it applies to; omit for all variants
@@ -122,7 +115,7 @@ function render(variant, props, force, axes) {
 // ---- Harness: leave as is ----
 const $ = (s) => document.querySelector(s);
 const q = new URLSearchParams(location.search);
-const st = { variant: VARIANTS.some((v) => v.id === q.get('variant')) ? q.get('variant') : VARIANTS[0] && VARIANTS[0].id, bg: /^#[0-9a-f]{6}$/i.test(q.get('bg') || '') ? q.get('bg') : '', token: COLORS.some((c) => c.label === q.get('token')) ? q.get('token') : '' };
+const st = { variant: VARIANTS.some((v) => v.id === q.get('variant')) ? q.get('variant') : VARIANTS[0] && VARIANTS[0].id, bg: /^#[0-9a-f]{6}$/i.test(q.get('bg') || '') ? q.get('bg') : '', token: COLORS.some((c) => c.name === q.get('token')) ? q.get('token') : '' };
 AXES.forEach((a) => { st[a.key] = a.values.some((v) => v.id === q.get(a.key)) ? q.get(a.key) : a.values[0].id; });
 const axes = () => Object.fromEntries(AXES.map((a) => [a.key, st[a.key]]));
 const scenarios = () => SCENARIOS.filter((s) => !s.variants || s.variants.includes(st.variant));
@@ -148,7 +141,7 @@ function resolveColor(v) {
   } catch (e) { const m = String(v).match(/^#[0-9a-f]{6}$/i); return m ? m[0].toLowerCase() : null; }
 }
 function applyPage() {
-  const tk = COLORS.find((c) => c.label === st.token);
+  const tk = COLORS.find((c) => c.name === st.token);
   const hex = (tk && resolveColor(tk.value)) || st.bg || '#ffffff', n = parseInt(hex.slice(1), 16);
   const lin = (v) => { v /= 255; return v <= .03928 ? v / 12.92 : Math.pow((v + .055) / 1.055, 2.4); };
   const L = .2126 * lin(n >> 16 & 255) + .7152 * lin(n >> 8 & 255) + .0722 * lin(n & 255);
@@ -187,8 +180,8 @@ function drag(node, fn) {
 }
 let pk = null; // current hsv, kept across picks so the hue survives going through white, black and grey
 function bgPicker() {
-  pk = pk || hexToHsv(((COLORS.find((c) => c.label === st.token) || {}).value && resolveColor(COLORS.find((c) => c.label === st.token).value)) || st.bg || '#ffffff');
-  let marks = () => {};
+  pk = pk || hexToHsv((st.token && resolveColor((COLORS.find((c) => c.name === st.token) || {}).value)) || st.bg || '#ffffff');
+  let syncVars = () => {};
   const wrap = el('div', 'lab-popwrap'), chip = el('button', 'lab-bg'), hexLabel = el('span'), sw = el('span', 'lab-swatch');
   chip.type = 'button'; chip.setAttribute('aria-haspopup', 'dialog'); chip.setAttribute('aria-expanded', 'false'); chip.append(hexLabel, sw);
   const pop = el('div', 'lab-pop'); pop.hidden = true; pop.setAttribute('role', 'dialog'); pop.setAttribute('aria-label', 'Background color');
@@ -203,7 +196,7 @@ function bgPicker() {
     const hx = hsvToHex(pk); sv.style.setProperty('--hue', pk.h);
     svKnob.style.left = pk.s * 100 + '%'; svKnob.style.top = (1 - pk.v) * 100 + '%'; hueKnob.style.left = pk.h / 360 * 100 + '%';
     svKnob.style.background = hx; hueKnob.style.background = `hsl(${pk.h} 100% 50%)`;
-    hexLabel.textContent = st.token || hx.toUpperCase(); sw.style.background = hx; marks();
+    hexLabel.textContent = hx.toUpperCase(); sw.style.background = hx; syncVars();
     if (document.activeElement !== input) input.value = hx; input.removeAttribute('aria-invalid');
     buttons.forEach(([p, b]) => b.setAttribute('aria-pressed', String(p === hx)));
   }
@@ -222,28 +215,20 @@ function bgPicker() {
   bgPicker.off = () => { document.removeEventListener('pointerdown', away); document.removeEventListener('keydown', esc); };
   paint();
   const grp = el('div', 'lab-grp'); grp.append(wrap);
-  if (COLORS.length) grp.append(tokenMenu());
+  if (COLORS.length) grp.append(varSelect());
   return grp;
-  // The project's own color variables: pick one and the page fills with it.
-  function tokenMenu() {
-    const w = el('div', 'lab-popwrap'), btn = el('button', 'lab-iconbtn'), icon = el('span');
-    btn.type = 'button'; btn.title = 'Project colors'; btn.setAttribute('aria-label', 'Project colors'); btn.setAttribute('aria-haspopup', 'listbox'); btn.setAttribute('aria-expanded', 'false');
-    icon.innerHTML = '<svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"><path d="M1.5 3h2.2M6.3 3h4.2M1.5 9h4.2M8.3 9h2.2"/><circle cx="5" cy="3" r="1.3"/><circle cx="7" cy="9" r="1.3"/></svg>'; btn.append(icon);
-    const menu = el('div', 'lab-pop lab-toks'); menu.hidden = true; menu.setAttribute('role', 'listbox'); menu.setAttribute('aria-label', 'Project colors');
-    const rows = COLORS.map((c) => {
-      const hx = resolveColor(c.value) || '#ffffff', b = el('button', 'lab-tok'), s2 = el('span', 'lab-swatch');
-      b.type = 'button'; b.setAttribute('role', 'option'); s2.style.background = hx; b.append(s2, el('span', '', c.label)); if (c.name) b.append(el('small', '', c.name));
-      b.onclick = () => { st.token = c.label; st.bg = hx === '#ffffff' ? '' : hx; pk = hexToHsv(hx); applyPage(); sync(); paint(); close(); };
-      menu.append(b); return [c.label, b];
-    });
-    marks = () => { rows.forEach(([l, b]) => b.setAttribute('aria-selected', String(l === st.token))); rows.forEach(([l, b]) => b.toggleAttribute('aria-pressed', false) || (l === st.token && b.setAttribute('aria-pressed', 'true'))); btn.toggleAttribute('data-on', !!st.token); };
-    const close = () => { menu.hidden = true; btn.setAttribute('aria-expanded', 'false'); };
-    btn.onclick = () => { menu.hidden = !menu.hidden; btn.setAttribute('aria-expanded', String(!menu.hidden)); };
-    const away = (e) => { if (!w.contains(e.target)) close(); }, esc = (e) => { if (e.key === 'Escape') close(); };
-    if (tokenMenu.off) tokenMenu.off();
-    document.addEventListener('pointerdown', away); document.addEventListener('keydown', esc);
-    tokenMenu.off = () => { document.removeEventListener('pointerdown', away); document.removeEventListener('keydown', esc); };
-    w.append(btn, menu); marks(); return w;
+  // The project's color variables as a native select: pick one and the page fills with its value.
+  function varSelect() {
+    const sel = el('select', 'lab-select lab-vars'); sel.setAttribute('aria-label', 'Project color variable');
+    const none = el('option', '', 'Variable'); none.value = ''; sel.append(none);
+    COLORS.forEach((c) => { const o = el('option', '', c.name); o.value = c.name; o.title = c.value; sel.append(o); });
+    syncVars = () => { sel.value = st.token || ''; };
+    sel.onchange = () => {
+      const c = COLORS.find((x) => x.name === sel.value); st.token = c ? c.name : '';
+      if (c) { const hx = resolveColor(c.value) || '#ffffff'; st.bg = hx === '#ffffff' ? '' : hx; pk = hexToHsv(hx); }
+      applyPage(); sync(); paint();
+    };
+    syncVars(); return sel;
   }
 }
 function drawTools() {
