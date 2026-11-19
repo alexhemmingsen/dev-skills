@@ -102,6 +102,7 @@ const SCENARIOS = [ // { id, label, group, props, force?, variants? } variants: 
   { id: 'pressed', label: 'pressed', group: 'Interaction', props: {}, force: 'pressed' },
 ];
 // render(variant, props, force, axes) returns an element: the forked component with every action stubbed.
+// Return the component ITSELF: no wrapper, card, sidebar surface or backdrop around it. Only its own fill; the page color shows behind it.
 // Set data-force when force is given. Read axes (shape, size, theme, ...) however the component does.
 function render(variant, props, force, axes) {
   const el = document.createElement('button');

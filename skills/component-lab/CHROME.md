@@ -33,6 +33,10 @@ The segmented control is the one control style: a rounded track (`rgba(0,0,0,.08
 
 The preview component behaves as it does in the app, with no side effects. Replace every callback prop with a no-op, never call the network or write to a store, and feed it mock data from the scenarios. Pressing Delete deletes nothing.
 
+## No backdrop
+
+The component sits directly on the page. Every cell, and the interactive one, shows the component alone: its own fill and nothing around it (no sidebar surface, panel, card or wrapper with a background). The page color comes from the Background color control, so a backdrop behind a component would hide the very thing the user is changing.
+
 ## URL
 
 Every control lives in the query string, written with `history.replaceState`: `?variant=<id>&shape=edgy&size=lg&theme=dark&bg=%23ff0000`. Missing params fall back to the first value of each axis. Load reads the URL once.
