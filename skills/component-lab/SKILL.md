@@ -8,7 +8,7 @@ disable-model-invocation: true
 
 Invoked with a component ("lets work on the action button"), start at Phase 1. Invoked bare, ask one question: **Which component?**
 
-The lab is a **throwaway** page beside the project: the interactive component first, then a grid of snapshots of every state of the selected variant, with global controls (theme, size, shape) at the side. It adds one marked guard to the project's code and is deleted when the work ends. [lab.html](lab.html) is the page, and its header comment says how it behaves.
+The lab is a **throwaway** web page, and it always opens in the browser. It sits beside the project: the interactive component first, then a grid of snapshots of every state of the selected variant, with global controls (theme, size, shape) at the side. It adds one marked guard to the project's code and is deleted when the work ends. [lab.html](lab.html) is the page, and its header comment says how it behaves.
 
 ## Workflow
 
@@ -41,10 +41,9 @@ Collect the project's **color variables** for the background dropdown with one s
 5. **Mount it.**
    - **Web app with a dev server:** reach the lab with the search param `?ahem-skill=<component>` (kebab-case, e.g. `?ahem-skill=text-input`) on the page the app already serves, so hot reload works and the fork imports the component's own modules. Add one guard where the whole app is rendered (React: `main.tsx` or the root `App`; Next: a small client component rendered from the root layout; the equivalent elsewhere). When the param is present it returns the lab instead of the app, so no page, layout, effect, request or redirect underneath runs. Put it inside the providers the component needs (theme, i18n). The lab's root is a fixed full-viewport overlay; if it sits in a container with `transform`, `filter`, `backdrop-filter`, `will-change` or `contain`, render it through a portal to `body`. Mark the guard with a comment containing `ahem-skill` (`// ahem-skill`): it is the only edit to existing code, and the cleanup search finds it by that marker.
    - **No app and no dev server:** one self-contained HTML file in the working directory.
-   - **Native or other stacks:** read [NATIVE.md](NATIVE.md).
-6. **Take the user there.** Start the app's dev server if it is not running, open `http://localhost:<port>/?ahem-skill=<component>` (`open <url>` on macOS, `xdg-open` on Linux) and print the URL. Opening the lab is the hand-off; the user does the looking.
+6. **Take the user there.** Start the app's dev server if it is not running, open `http://localhost:<port>/?ahem-skill=<component>` in the browser (`open <url>` on macOS, `xdg-open` on Linux) and print the URL. For the standalone file, open its path. Opening the lab is the hand-off; the user does the looking.
 
-**Done when** the lab is open for the user, served from inside the app.
+**Done when** the lab is open in the user's browser, served from inside the app.
 
 ### Phase 4: Talk and change
 
