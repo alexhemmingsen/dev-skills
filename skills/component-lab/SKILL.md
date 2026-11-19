@@ -24,7 +24,7 @@ A lab is a page (white by default) with a thin top bar and a grid. **Top bar:** 
 8. **Everything is in view.** Show all states at once in the grid, with nothing to click through. Changes ripple across states, so the user watches them together. Axis toggles live in the URL, so a reload keeps the place.
 9. **The lab looks the same every time.** Copy [lab.html](lab.html) and edit only its `Per run` block. Keep the layout, spacing, colors and behavior as they are, whoever invokes the skill and whatever the project looks like, so the user already knows the page before it loads. Change the look only when the user asks for a different one. [CHROME.md](CHROME.md) describes the page and the Figma design it follows.
 10. **Actions do nothing.** Stub every callback and side effect in the interactive component, so Delete deletes nothing.
-11. **The lab never survives the work.** It is deleted as the last step of every lab, whether the user lifted it out or dropped it. No lab file is ever left in the app, staged or committed: a leftover route breaks the app's workflow and ships by accident. While a lab exists, never stage or commit lab files, and when the user asks to commit, push or open a PR, stop and say a lab still exists: lift it out or delete it first.
+11. **The lab never survives the work.** It is deleted as the last step of every lab, whether the user lifted it out or dropped it. No lab file is ever left in the app, staged or committed: a leftover guard or file breaks the app's workflow and ships by accident. While a lab exists, never stage or commit lab files, and when the user asks to commit, push or open a PR, stop and say a lab still exists: lift it out or delete it first.
 
 ## Workflow
 
@@ -56,11 +56,12 @@ Group the states by what they are (Data, Interaction, Layout, whatever the compo
 
 Build the lab in the stack's own idiom:
 
-- **Web app with a dev server:** the lab lives inside the app, served by the app's own dev server, so hot module reload works and the fork can import the component's modules and icons. Read `package.json` and the folder layout to find the router, then pick the mechanism that edits the fewest existing files:
-  - **File-based router** (Next `app/` or `pages/`, SvelteKit, Nuxt, Astro, Remix flat routes): add one new route `/ahem-skill-<component>` (component name in kebab-case, e.g. `/ahem-skill-text-input`) the way that router adds any page. No existing file is edited.
-  - **Config-based router** (React Router config, TanStack Router, a hand-written routes list, a plain SPA): use a search param, `?ahem-skill=<component>`. Add one guard at the app's render point, inside its providers (theme, i18n, data), that renders the lab page instead of the app when the param is present. The guard is the only edit to existing code, and it is one small block.
-  
-  Either way, put the fork and the lab page together in one folder named `ahem-skill-<component>` (for example `<routes>/ahem-skill-text-input/`), so deleting the folder deletes the lab, and the `ahem-skill` prefix makes every trace easy to search for. Port [lab.html](lab.html) into it with its CSS and structure unchanged, styled by the fork's own plain CSS. Never write the lab to `/tmp`, a scratchpad or any folder outside the app: a file there gets no hot reload and cannot import anything.
+- **Web app with a dev server:** the lab lives inside the app, served by the app's own dev server, so hot module reload works and the fork can import the component's modules and icons. **Never touch the router**: no new route, no routes list edit, no generated route tree. The lab is reached with a search param, `?ahem-skill=<component>` (component name in kebab-case, e.g. `?ahem-skill=text-input`), on whatever page the app serves, and works the same in every framework:
+  - **One guard, at the top.** Find the one place that renders the whole app (React: `main.tsx` or the root `App`; Next: a small client component rendered from the root layout; the equivalent in Vue, Svelte and the rest). Add a guard there that reads the param and, when it is present, **returns the lab instead of the app**, so no page, layout, nav, effect, request or redirect underneath ever runs. Put it inside the providers the component needs (theme, i18n) and as high as those allow. If the lab ends up inside a container with `transform`, `filter`, `backdrop-filter`, `will-change` or `contain`, render it through a portal to `body` instead, since `position: fixed` is then relative to that container.
+  - **The lab is a full-viewport overlay.** Its root is `position: fixed; inset: 0` with its own background, so it covers everything and never depends on the page being full height.
+  - **The guard is the only edit to existing code**, one small block. Mark it with a comment containing `ahem-skill` (`// ahem-skill`) so the cleanup search always finds it.
+
+  Put the fork and the lab page together in one folder named `ahem-skill-<component>`, next to the guard's file or under the app's source root, so deleting the folder deletes the lab. Port [lab.html](lab.html) into it with its CSS and structure unchanged, styled by the fork's own plain CSS. Never write the lab to `/tmp`, a scratchpad or any folder outside the app: a file there gets no hot reload and cannot import anything.
 - **No app and no dev server:** one self-contained HTML file, written into the user's working directory.
 - **Native or other stacks:** the nearest equivalent that keeps the loop: a debug-only gallery screen with the same layout (interactive component beside a grid of states), a launch argument in place of the URL param, and the stack's own hot reload or preview.
 
@@ -82,7 +83,7 @@ The harness sets `data-force` on that grid cell's component, so hover shows with
 
 Then **take the user there**, in the surface the stack uses:
 
-- **Web app:** start the app's dev server if it is not running, then open the lab (`http://localhost:<port>/ahem-skill-<component>`, or `http://localhost:<port>/?ahem-skill=<component>` for the search-param mechanism) in their browser (`open <url>` on macOS, `xdg-open` on Linux) and print the URL. For the standalone file, open its path.
+- **Web app:** start the app's dev server if it is not running, then open `http://localhost:<port>/?ahem-skill=<component>` in their browser (`open <url>` on macOS, `xdg-open` on Linux) and print the URL. For the standalone file, open its path.
 - **iOS:** build and launch the app in the simulator straight onto the lab screen (the launch argument), e.g. with `xcodebuild` and `xcrun simctl launch`, or the project's own run command.
 - **Other stacks:** open the lab in that stack's own viewer, emulator or preview.
 
@@ -105,7 +106,7 @@ Stay here until the user says **lift out**.
 
 1. Translate the fork's changes into the real component, now following the project's conventions: its tokens, utility classes, naming and file layout. **New component:** create the real component where its kind lives (look at where similar components sit), following the project's conventions for file, name, props and exports. No existing component is replaced.
 2. Strip every `data-force` twin selector and any lab-only props from the real component.
-3. **Delete the lab.** Remove the whole `ahem-skill-<component>` folder, and remove everything else the lab touched: the search-param guard, a route registration, a generated route tree or manifest entry, a nav link, a launch argument or gallery entry on native. Deleting is not optional and never waits for the user to ask.
+3. **Delete the lab.** Remove the whole `ahem-skill-<component>` folder, and remove everything else the lab touched: the guard (the block marked `ahem-skill`) and its import, and on native a launch argument or gallery entry. Deleting is not optional and never waits for the user to ask.
 4. Prove it is gone. Search the repo for `ahem-skill` and for `data-force`: zero hits. `git status` lists no lab path. Stop the dev server if you started it.
 5. Run the project's checks. This is the moment its normal verification rules apply, because the work is now production code.
 
