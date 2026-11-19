@@ -25,7 +25,13 @@
   .lab-select { padding: 0 32px 0 8px; border: 1px solid var(--line); border-radius: 8px; background: var(--bg) var(--chev) no-repeat right 10px center / 12px; color: var(--fg); font: inherit; letter-spacing: inherit; appearance: none; -webkit-appearance: none; cursor: pointer; }
   .lab-bg { position: relative; display: inline-flex; align-items: center; gap: 8px; padding: 0 8px; border: 1px solid var(--line); border-radius: 8px; color: var(--fg); cursor: pointer; }
   .lab-popwrap { position: relative; }
-  .lab-vars { max-width: 220px; text-overflow: ellipsis; }
+  /* the project color variables: the sliders icon button from the design, with a native <select> laid invisibly over it, so a click opens the browser's own list */
+  .lab-iconsel { position: relative; display: grid; place-items: center; height: 26px; padding: 0 8px; border: 1px solid var(--line); border-radius: 8px; color: var(--fg); }
+  .lab-iconsel[data-on] { background: var(--line); }
+  .lab-iconsel:focus-within { outline: 2px solid var(--fg); outline-offset: 2px; }
+  .lab-iconsel > span { display: grid; place-items: center; width: 16px; height: 16px; pointer-events: none; }
+  .lab-iconsel svg { width: 12px; height: 12px; }
+  .lab-iconsel select { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer; font: inherit; }
   .lab-bg { font: inherit; letter-spacing: inherit; background: none; }
   .lab-pop { position: absolute; top: calc(100% + 8px); right: 0; z-index: 10; display: grid; gap: 12px; width: 232px; padding: 12px; border: 1px solid var(--line); border-radius: 12px; background: var(--pop, #fff); box-shadow: 0 12px 32px rgba(0,0,0,.14), 0 2px 6px rgba(0,0,0,.08); color-scheme: var(--scheme, light); }
   .lab-pop[hidden] { display: none; }
@@ -224,16 +230,18 @@ function bgPicker() {
   return grp;
   // The project's color variables as a native select: pick one and the page fills with its value.
   function varSelect() {
-    const sel = el('select', 'lab-select lab-vars'); sel.setAttribute('aria-label', 'Project color variable');
-    const none = el('option', '', 'Variable'); none.value = ''; sel.append(none);
+    const box = el('div', 'lab-iconsel'), icon = el('span'), sel = el('select', 'lab-vars');
+    icon.innerHTML = '<svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"><path d="M1.5 3h2.2M6.3 3h4.2M1.5 9h4.2M8.3 9h2.2"/><circle cx="5" cy="3" r="1.3"/><circle cx="7" cy="9" r="1.3"/></svg>';
+    sel.setAttribute('aria-label', 'Project color variable'); box.title = 'Project color variables';
+    const none = el('option', '', 'Project color variable'); none.value = ''; sel.append(none);
     COLORS.forEach((c) => { const o = el('option', '', c.name); o.value = c.name; o.title = c.value; sel.append(o); });
-    syncVars = () => { sel.value = st.token || ''; };
+    syncVars = () => { sel.value = st.token || ''; box.toggleAttribute('data-on', !!st.token); };
     sel.onchange = () => {
       const c = COLORS.find((x) => x.name === sel.value); st.token = c ? c.name : '';
       if (c) { const hx = resolveColor(c.value) || '#ffffff'; st.bg = hx === '#ffffff' ? '' : hx; pk = hexToHsv(hx); }
       applyPage(); sync(); paint();
     };
-    syncVars(); return sel;
+    box.append(icon, sel); syncVars(); return box;
   }
 }
 function drawTools() {
