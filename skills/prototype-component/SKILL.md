@@ -43,26 +43,26 @@ Print the list in a few lines: a one-word name per state, each group with a shor
 3. **Keep it in the cell.** Everything the component renders stays inside its grid cell, panels included. Overlays (listboxes, menus, popovers, tooltips) mount inside the cell: point the portal container at `host`, the fifth argument of `render` and the cell's own element, or render the panel in flow. A panel portaled to `body` escapes the grid.
 4. **Fill the page.** Copy [lab.html](lab.html) into the same folder and edit only its `Per run` block: name, variants, axes (the sidebar controls), `COLORS`, scenarios (`id`, `label`, `group`, `props`, optional `force` and `variants`; one per state) and `render(variant, props, force, axes, host)`, which mounts the draft. The rest stays as it is, so the lab looks the same on every run.
 5. **Mount it.** Reach the lab with the search param `?ahem-skill=<component>` (kebab-case) on the page the app already serves, so hot reload works. Add one guard where the whole app is rendered (React: `main.tsx` or the root `App`; Next: a small client component rendered from the root layout; the equivalent elsewhere). With the param present it returns the lab instead of the app, so nothing underneath runs. Put it inside the providers the draft needs (theme, i18n). The lab's root is a fixed full-viewport overlay; when it sits in a container with `transform`, `filter`, `backdrop-filter`, `will-change` or `contain`, render it through a portal to `body`. Mark the guard with a comment containing `ahem-skill`: the clean-up search finds it by that marker.
-6. **Check every cell, then take the user there.** Start the dev server if it is not running and open `http://localhost:<port>/?ahem-skill=<component>` in the browser (`open <url>` on macOS, `xdg-open` on Linux). Compare the cell count with the Phase 2 list. Print the URL. With no web dev server (SwiftUI, Android, a plain static site), read [NON-WEB.md](NON-WEB.md): it replaces the mount and the clean-up.
+6. **Check every cell, then take the user there.** Start the dev server if it is not running and open `http://localhost:<port>/?ahem-skill=<component>` in the browser. Compare the cell count with the Phase 2 list. Print the URL. With no web dev server (SwiftUI, Android, a plain static site), read [NON-WEB.md](NON-WEB.md): it replaces the mount and the clean-up.
 
 **Done when** the lab is open in the user's browser and has a cell for every state on the Phase 2 list.
 
 ### Phase 4: Talk and change
 
-Print the variants, sidebar controls and states in a few lines. Then the loop: the user says what to change ("rounder", "add an error state", "what other states are usual?", "drop success"), and each request becomes **one edit** to the draft, the scenarios or the lab page, followed by a one-line reply. A question about states gets an answer and, when the user wants it, a new cell. After a visual change, look at every state again: a fix for one often breaks another.
+The loop: the user says what to change ("rounder", "add an error state", "what other states are usual?", "drop success"), and each request becomes **one edit** to the draft, the scenarios or the lab page, followed by a one-line reply. A question about states gets an answer and, when the user wants it, a new cell. After a visual change, look at every state again: a fix for one often breaks another.
 
 **Done when** each request ends with its one edit and a one-line reply. The loop ends at `create it` or `drop it`.
 
 ### Phase 5: Create the real component and delete the lab
 
-1. Create the component where its kind lives (look at where similar components sit), in the project's conventions for file, name, props, tokens and exports. It sits beside the existing components and replaces none.
+1. Create the component where its kind lives (look at where similar components sit), in the project's conventions for file, name, props, tokens and exports.
 2. Remove every `data-force` twin selector.
 3. **Delete the lab, always, without waiting to be asked.** Remove the `ahem-skill-<component>` folder and the guard with its import.
 4. Prove it is gone: a search of the repo for `ahem-skill` and `data-force` finds nothing, and `git status` lists no lab path. Stop the dev server if you started it.
 5. Run the project's checks, now that the work is production code.
 6. Tell the user that `/component-lab` (when installed) is how to keep working on it.
 
-**Done when** the component exists in the project, the repo has zero hits for `ahem-skill` and `data-force`, and the checks pass.
+**Done when** the component exists in the project, step 4 passes, and the checks pass.
 
 When the user drops the work, run steps 3 and 4 only. While a lab exists, its files stay unstaged and uncommitted: a request to commit, push or open a PR gets a stop until the component is created or the lab deleted.
 
