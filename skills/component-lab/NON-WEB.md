@@ -6,7 +6,7 @@ Read when the project has no web dev server (SwiftUI, Android, a plain static si
 
 - **Redraw instead of copying.** There is no markup to copy, so draw the component in HTML and CSS from its source, reading layout, spacing, fonts, colors, radii and shadows from the view code. Platform icons (SF Symbols and the like) cannot be copied: draw the closest SVG and tell the user which glyphs are approximations.
 - **The lab is the standalone `lab.html`, edited in place.** Save it as `ahem-skill-<component>.html` in a temporary directory outside the project, so nothing enters the repo, with the redrawn component in its `render`. No folder and no guard go into the project.
-- **Take the user there** by opening the file's path in the browser. The user refreshes the page to see each edit.
+- **Open the file in the user's browser yourself**, with `open <path>` (macOS), `xdg-open <path>` (Linux) or `start <path>` (Windows), or by navigating a tab to it when a browser tool is available. The user never navigates there on their own. The user refreshes the page to see each edit.
 
 ## Phase 5: lift out and delete
 

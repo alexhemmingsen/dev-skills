@@ -104,7 +104,7 @@ COLOR   The background chip colors the whole page and the lab's own text, icons 
 <script>
 // ---- Per run: replace these ----
 const NAME = 'Buttons';
-const VARIANTS = [{ id: 'action', label: 'Action' }, { id: 'neutral', label: 'Neutral' }]; // [] when there are none
+const VARIANTS = [{ id: 'action', label: 'Action' }, { id: 'neutral', label: 'Neutral' }]; // Versions of the component, each with its own set of states (a button for different uses, a timeline per order type). Never a state like hover or loading. [] when there are none
 const AXES = [ // The right sidebar. EXAMPLES, delete what the component lacks. The rule: whatever affects ALL states of the component goes here (theme, size, shape or radius, shadow, background or fill, border, density, ...), one control per prop, one button per value. [] hides the whole panel. Only axes that exist in the component.
   { key: 'shape', label: 'Shape', values: [{ id: 'round', label: 'Round' }, { id: 'edgy', label: 'Edgy' }] },
   { key: 'size', label: 'Size', values: [{ id: 'sm', label: 'Small' }, { id: 'md', label: 'Medium' }, { id: 'lg', label: 'Large' }] },
