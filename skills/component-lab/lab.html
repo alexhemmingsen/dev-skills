@@ -121,7 +121,7 @@ const SCENARIOS = [ // { id, label, group, props, variants? } variants: ids it a
   { id: 'disabled', label: 'disabled', group: 'Data', props: { disabled: true } },
   { id: 'long-text', label: 'long text', group: 'Data', props: { label: 'A label that is much longer than the button usually holds' } },
 ];
-// render(variant, props, axes, host) returns an element: the component with every action stubbed. Every cell is live, so a stub keeps Delete from deleting anything.
+// render(variant, props, axes, host) returns an element: the component with every action stubbed. Every cell is live, so nothing real happens: an API action is a stub that does the UI part only (Save closes the dialog, nothing is sent). The harness also swallows link clicks, form submits and window.open, so the page never navigates away.
 // host is the cell's own element. Everything the component renders stays in its cell: point portals (listboxes, menus, popovers, tooltips) at host, or render the panel in flow, so nothing escapes to document.body.
 // Return the component ITSELF: no wrapper, card, sidebar surface or backdrop around it. Only its own fill; the page color shows behind it.
 // Pass every axis (shape, size, theme, radius, shadow, ...) to the component the way it takes them: as the props or classes it really has.
@@ -134,6 +134,10 @@ function render(variant, props, axes) {
   return el;
 }
 // ---- Harness: leave as is ----
+// A prototype never leaves the page: link clicks, form submits and window.open do nothing (preventDefault only, so the component's own handlers still run).
+document.addEventListener('click', (e) => { if (e.target.closest && e.target.closest('a[href]')) e.preventDefault(); }, true);
+document.addEventListener('submit', (e) => e.preventDefault(), true);
+window.open = () => null;
 const $ = (s) => document.querySelector(s);
 const q = new URLSearchParams(location.search);
 const st = { variant: VARIANTS.some((v) => v.id === q.get('variant')) ? q.get('variant') : VARIANTS[0] && VARIANTS[0].id, bg: /^#[0-9a-f]{6}$/i.test(q.get('bg') || '') ? q.get('bg') : '' };
