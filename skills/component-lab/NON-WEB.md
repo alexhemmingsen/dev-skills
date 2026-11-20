@@ -10,4 +10,4 @@ Read when the project has no web dev server (SwiftUI, Android, a plain static si
 
 ## Phase 5: lift out and delete
 
-The lab is the design spec: implement what it settled in the project's own language and components. Delete the `ahem-skill-<component>.html` file; there is no guard or folder to remove, so the repo search for `data-force` and `ahem-skill` covers the rest.
+The lab is the design spec: implement what it settled in the project's own language and components. Delete the `ahem-skill-<component>.html` file; there is no guard or folder to remove, so the repo search for `ahem-skill` covers the rest.

@@ -4,7 +4,7 @@ Read from the Phase 3 steps of [SKILL.md](SKILL.md) when the component has overl
 
 ## Overlays
 
-Listboxes, menus, popovers, date pickers and tooltips mount inside the cell: point the component's portal container at `host`, the fifth argument of `render` and the cell's own element, or render the panel in flow. A panel portaled to `body` escapes the grid.
+Listboxes, menus, popovers, date pickers and tooltips mount inside the cell: point the component's portal container at `host`, the fifth argument of `render` and the cell's own element, or render the panel in flow. A panel portaled to `body` escapes the grid. Every cell is live, so a panel a user opens in one cell may overlap the cells around it; it closes again, and the grid stays still.
 
 ## Mount
 

@@ -25,7 +25,7 @@ Search the project once by name. If the component exists, say so in one line and
 **Gather.** Two sources decide the list, and the kind of component sets the mix:
 
 - **General rules** carry a generic primitive. A button, input, toggle or badge has well-known states (the groups under *States*), so the conventions of its kind give most of the list.
-- **The project** carries a domain component (an order activity card, a customer row, an invoice summary), which shows the project's own data. **Investigate the project first.** Read the model or type behind it (for the order: fields, optional fields, nested lists, relations), every enum and status union (each value is a state), the API shapes and fixtures, the role and permission checks that change what is shown, the project's rules (`AGENTS.md`, `CLAUDE.md`, design docs, i18n files), and the sibling components of its family for what they already handle. Cell candidates: each status value, each optional field present and absent, each list empty, one and many, each long or missing text. The general groups fill in what the model does not say (loading, error, hover, focus).
+- **The project** carries a domain component (an order activity card, a customer row, an invoice summary), which shows the project's own data. **Investigate the project first.** Read the model or type behind it (for the order: fields, optional fields, nested lists, relations), every enum and status union (each value is a state), the API shapes and fixtures, the role and permission checks that change what is shown, the project's rules (`AGENTS.md`, `CLAUDE.md`, design docs, i18n files), and the sibling components of its family for what they already handle. Cell candidates: each status value, each optional field present and absent, each list empty, one and many, each long or missing text. The general groups fill in what the model does not say (loading, error, open).
 
 Most components mix the two, since a domain card is built from primitives with their own states.
 
@@ -34,7 +34,7 @@ Most components mix the two, since a domain card is built from primitives with t
 - **Variants** are what the thing *is*, the ones people reach for (a button: primary, secondary, destructive, ghost). They become the variant select.
 - **Sidebar controls** are the right sidebar: **if it affects all states of the component, it goes there.** That covers theme, size, shape or radius, shadow or elevation, fill color, border, density, text style, width and direction: any prop, class or token that restyles every cell at once. One control per setting, one button per value (three radii are three buttons, not three cells). The test: would a user want to flip it for the whole grid at once? Offer the values a component of this kind ships with (a button: `sm`, `md`, `lg`; `round`, `edgy`), within the project's own scale. A theme styles the components only.
 - **States** are what it is *doing*, and fill the grid (`loading`, `error` and `disabled` are cells). In groups:
-  - Interaction: default, hover, focus-visible, pressed, disabled; selected or checked for toggles.
+  - Interaction that persists: default, disabled; selected or checked, open or expanded, focused with a value, for the components that hold them. **Every cell is live**: the component feels the way it will in production, on the state the cell shows. Hover and press styles, focus, drag and drop, keyboard, scroll, gestures and transitions all work (hover the loading button and its hover style appears), so interaction is never a cell of its own.
   - Async: loading, success, error, where they apply.
   - Data: empty, long content, no text, with an icon, many items, missing optional fields.
   - Layout: narrow, full width, wrapped text.
@@ -47,12 +47,12 @@ Most components mix the two, since a domain card is built from primitives with t
 
 ### Phase 3: Draft the prototype and open the lab
 
-1. **Draft the component from scratch** in a folder named `ahem-skill-<component>`. Keep it **minimal**: plain and neutral, the project's tokens and fonts, real icons from the project's icon source. The point is that every state exists and reads clearly. Implement every state on the list, and take every sidebar setting as a real prop or class, so each control restyles every state. Give hover, focus and pressed `data-force` twin selectors in the draft's own styles (`.btn:hover, .btn[data-force="hover"] { ... }`).
-2. **Make it testable.** Stub every callback and side effect, so nothing real can happen. Write scenarios as fixtures of the project's real model type (typed, so a renamed field breaks the lab), with product-shaped copy, real-shaped names, amounts and counts, and plausible values: three rows of "Test item" make every state look fine. Loading and pending states stay pending for good.
+1. **Draft the component from scratch** in a folder named `ahem-skill-<component>`. Keep it **minimal**: plain and neutral, the project's tokens and fonts, real icons from the project's icon source. The point is that every state exists and reads clearly. Implement every state on the list, and take every sidebar setting as a real prop or class, so each control restyles every state. Build every interaction the component supports for real (hover, focus and pressed styles through the ordinary pseudo-classes, drag and drop, keyboard), with local state where it needs it, so each plays live in every cell while the callbacks stay stubbed.
+2. **Make it testable.** Stub every callback and side effect, so nothing real can happen in any cell. Write scenarios as fixtures of the project's real model type (typed, so a renamed field breaks the lab), with product-shaped copy, real-shaped names, amounts and counts, and plausible values: three rows of "Test item" make every state look fine. Loading and pending states stay pending for good.
 3. **Keep it in the cell.** Everything the component renders stays inside its grid cell, panels included. With overlays, read the Overlays section of [LAB-MECHANICS.md](LAB-MECHANICS.md).
 4. **Fill the page.** Copy [lab.html](lab.html) into the same folder and edit only its `Per run` block: name, variants, axes (the sidebar controls), `COLORS`, scenarios (`id`, `label`, `group`, `props`, optional `force` and `variants`; one per state) and `render(variant, props, force, axes, host)`, which mounts the draft. The rest stays as it is, so the lab looks the same on every run.
 5. **Mount it.** Reach the lab with the search param `?ahem-skill=<component>` (kebab-case) on the page the app already serves, so hot reload works, through one guard where the whole app is rendered, inside the providers the draft needs. Mark the guard with a comment containing `ahem-skill`: the clean-up search finds it by that marker. The Mount section of [LAB-MECHANICS.md](LAB-MECHANICS.md) has the framework specifics.
-6. **Check every cell, then take the user there.** Start the dev server if it is not running and open `http://localhost:<port>/?ahem-skill=<component>` in the browser. Compare the cell count with the Phase 2 list. Print the URL. With no web dev server (SwiftUI, Android, a plain static site), read [NON-WEB.md](NON-WEB.md): it replaces the mount and the clean-up.
+6. **Check every cell, then take the user there.** Start the dev server if it is not running and open `http://localhost:<port>/?ahem-skill=<component>` in the browser. Compare the cell count with the Phase 2 list, and use a few cells (hover, press, drag, type) to see their interactions respond. Print the URL. With no web dev server (SwiftUI, Android, a plain static site), read [NON-WEB.md](NON-WEB.md): it replaces the mount and the clean-up.
 
 **Done when** the lab is open in the user's browser and has a cell for every state on the Phase 2 list.
 
@@ -65,9 +65,9 @@ The loop: the user says what to change ("rounder", "add an error state", "what o
 ### Phase 5: Create the real component and delete the lab
 
 1. Create the component where its kind lives (look at where similar components sit), in the project's conventions for file, name, props, tokens and exports.
-2. Remove every `data-force` twin selector.
+2. Remove any lab-only props from the component.
 3. **Delete the lab, always, without waiting to be asked.** Remove the `ahem-skill-<component>` folder and the guard with its import.
-4. Prove it is gone: a search of the repo for `ahem-skill` and `data-force` finds nothing, and `git status` lists no lab path. Stop the dev server if you started it.
+4. Prove it is gone: a search of the repo for `ahem-skill` finds nothing, and `git status` lists no lab path. Stop the dev server if you started it.
 5. Run the project's checks, now that the work is production code.
 6. Tell the user that `/component-lab` (when installed) is how to keep working on it.
 
