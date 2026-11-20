@@ -1,6 +1,6 @@
 ---
 name: prototype-component
-description: Create a new component: decide which states its type needs, prototype every one in the component lab, steer it with the agent, then create the real component.
+description: Create a new component by deciding which states its type needs, prototyping every one in the component lab, and steering it with the agent.
 disable-model-invocation: true
 ---
 
