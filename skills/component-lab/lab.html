@@ -99,7 +99,7 @@ COLOR   The background chip colors the whole page and the lab's own text, icons 
 // ---- Per run: replace these ----
 const NAME = 'Buttons';
 const VARIANTS = [{ id: 'action', label: 'Action' }, { id: 'neutral', label: 'Neutral' }]; // [] when there are none
-const AXES = [ // EXAMPLES, delete what the component lacks. Theme, size and shape are all optional; [] hides the whole panel. Only axes that change the look of ALL instances and exist in the component.
+const AXES = [ // The right sidebar. EXAMPLES, delete what the component lacks. The rule: whatever affects ALL states of the component goes here (theme, size, shape or radius, shadow, background or fill, border, density, ...), one control per prop, one button per value. [] hides the whole panel. Only axes that exist in the component.
   { key: 'shape', label: 'Shape', values: [{ id: 'round', label: 'Round' }, { id: 'edgy', label: 'Edgy' }] },
   { key: 'size', label: 'Size', values: [{ id: 'sm', label: 'Small' }, { id: 'md', label: 'Medium' }, { id: 'lg', label: 'Large' }] },
   { key: 'theme', label: 'Theme', values: [{ id: 'light', label: 'Light' }, { id: 'dark', label: 'Dark' }] }, // styles the components only, never the page
@@ -120,7 +120,7 @@ const SCENARIOS = [ // { id, label, group, props, force?, variants? } variants: 
 // render(variant, props, force, axes, host) returns an element: the forked component with every action stubbed.
 // host is the cell's own element. Everything the component renders stays in its cell: point portals (listboxes, menus, popovers, tooltips) at host, or render the panel in flow, so nothing escapes to document.body.
 // Return the component ITSELF: no wrapper, card, sidebar surface or backdrop around it. Only its own fill; the page color shows behind it.
-// Set data-force when force is given. Read axes (shape, size, theme, ...) however the component does.
+// Set data-force when force is given. Pass every axis (shape, size, theme, radius, shadow, ...) to the component the way it takes them: as the props or classes it really has.
 function render(variant, props, force, axes) {
   const el = document.createElement('button');
   el.textContent = props.loading ? 'Saving…' : 'Save';
