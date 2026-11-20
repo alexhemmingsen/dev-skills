@@ -11,11 +11,12 @@ LAYOUT  Top bar: breadcrumb ending in a Static / Interactive switch (two tabs), 
 STATIC  The default tab: the grid, one snapshot per scenario of the selected variant, not interactive. Columns are measured from what really rendered (wide children, menus, popups), rows grow for parts that hang below, and the last row is filled so the grid is a full rectangle. No widths are configured: a component that fills its container fills its slot (max 360px).
 INTERACTIVE  The other tab: the live component alone, centered in the body, fully interactive (first scenario's props). Panels it opens stay inside the body.
 STATE   Every control lives in the URL: view (static or interactive), variant, each axis key, bg. Axes set data-<key> on every slot and style the components only. A scenario's force sets data-force on its cell.
+MOTION  Chrome only, and little: the color picker fades and scales in from its chip (150ms), controls answer a press (scale .97). Tab switches, cells and the component never animate: the lab is a tool used all day, and the component must show production motion alone.
 COLOR   The background chip colors the whole page and the lab's own text, icons and lines follow in a contrast color (WCAG). color-scheme is set on the lab's chrome only. The project-color dropdown holds no value: it hands a color to the chip and rests. COLORS lists raw-value variables only.
 -->
 <style>
   /* page colors: the background color control sets --bg, and JS derives the rest as its contrast */
-  :root { --bg: #fff; --fg: #000; --dim: rgba(0,0,0,.5); --line: rgba(0,0,0,.08); --icon: rgba(0,0,0,.68); --pill: #fff; --chev: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12' fill='none' stroke='black' stroke-width='1.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M2.5 4.5 6 8l3.5-3.5'/%3E%3C/svg%3E"); }
+  :root { --ease-out: cubic-bezier(0.23, 1, 0.32, 1); --bg: #fff; --fg: #000; --dim: rgba(0,0,0,.5); --line: rgba(0,0,0,.08); --icon: rgba(0,0,0,.68); --pill: #fff; --chev: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12' fill='none' stroke='black' stroke-width='1.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M2.5 4.5 6 8l3.5-3.5'/%3E%3C/svg%3E"); }
   /* The lab's chrome sets its own box model and font. The slot (the component) gets neither, so it inherits the app's. */
   .lab *:not(.lab-slot, .lab-slot *) { box-sizing: border-box; }
   html, body { margin: 0; background: var(--bg); }
@@ -44,7 +45,13 @@ COLOR   The background chip colors the whole page and the lab's own text, icons 
   .lab-iconsel select { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer; font: inherit; }
   .lab-bg { font: inherit; letter-spacing: inherit; background: none; }
   .lab-pop { position: absolute; top: calc(100% + 8px); right: 0; z-index: 10; display: grid; gap: 12px; width: 232px; padding: 12px; border: 1px solid var(--line); border-radius: 12px; background: var(--pop, #fff); box-shadow: 0 12px 32px rgba(0,0,0,.14), 0 2px 6px rgba(0,0,0,.08); color-scheme: var(--scheme, light); }
-  .lab-pop[hidden] { display: none; }
+  /* Motion, chrome only: the picker opens from its chip (feedback, spatial consistency), buttons answer a press. Cells and the component never animate. */
+  .lab-pop { transform-origin: top right; transition: opacity 150ms var(--ease-out), transform 150ms var(--ease-out), display 150ms allow-discrete; }
+  .lab-pop[hidden] { display: none; opacity: 0; transform: scale(.96); }
+  @starting-style { .lab-pop { opacity: 0; transform: scale(.96); } }
+  .lab-opt, .lab-bg, .lab-iconsel, .lab-eye { transition: transform 120ms var(--ease-out); }
+  .lab-opt:active, .lab-bg:active, .lab-iconsel:active, .lab-eye:active { transform: scale(.97); }
+  @media (prefers-reduced-motion: reduce) { .lab-pop, .lab-pop[hidden] { transform: none; } .lab-opt, .lab-bg, .lab-iconsel, .lab-eye { transition: none; } .lab-opt:active, .lab-bg:active, .lab-iconsel:active, .lab-eye:active { transform: none; } }
   .lab-sv { --hue: 0; position: relative; height: 140px; border-radius: 8px; cursor: crosshair; touch-action: none; background: linear-gradient(to top, #000, transparent), linear-gradient(to right, #fff, hsl(var(--hue) 100% 50%)); box-shadow: inset 0 0 0 1px rgba(0,0,0,.08); }
   .lab-hue { position: relative; height: 12px; border-radius: 6px; cursor: ew-resize; touch-action: none; background: linear-gradient(to right, #f00, #ff0, #0f0, #0ff, #00f, #f0f, #f00); box-shadow: inset 0 0 0 1px rgba(0,0,0,.08); }
   .lab-knob { position: absolute; width: 14px; height: 14px; margin: -7px 0 0 -7px; border: 2px solid #fff; border-radius: 50%; box-shadow: 0 0 0 1px rgba(0,0,0,.25), 0 2px 4px rgba(0,0,0,.3); pointer-events: none; }

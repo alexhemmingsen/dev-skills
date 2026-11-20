@@ -8,7 +8,7 @@ disable-model-invocation: true
 
 Invoked with a kind of component ("a date picker", "a button"), start at Phase 1. Invoked bare, ask one question: **Which component?**
 
-For a component that **does not exist yet**; `/component-lab` works on an existing one. The result is a **minimal prototype** of every state a component of that type needs, in the same throwaway page `/component-lab` opens ([lab.html](../component-lab/lab.html)), so the user sees all states at once and steers them with the agent. The user's first question is often "what states does a component like this need?", so the state list is the centerpiece. This skill reads [component-lab's SKILL.md](../component-lab/SKILL.md) for the lab mechanics, so it needs `component-lab` installed beside it.
+For a component that **does not exist yet**; `/component-lab` works on an existing one. The result is a **minimal prototype** of every state a component of that type needs, in a throwaway lab page, so the user sees all states at once and steers them with the agent. The user's first question is often "what states does a component like this need?", so the state list is the centerpiece. [lab.html](lab.html) is the page, and its header comment says how it behaves.
 
 ## Workflow
 
@@ -23,14 +23,14 @@ Search the project once by name. If the component exists, say so in one line and
 **The lab is only as good as its list of states.** Decide it from what a finished component of this kind needs, and err complete: removing a cell is quicker than noticing a missing one.
 
 - **Variants**: the ones people reach for (a button: primary, secondary, destructive, ghost). They become the variant select.
-- **Sidebar controls**: if it affects all states, it goes in the right sidebar (component-lab Phase 2 says how). Size, shape or radius, shadow, theme, density, width, fill: one control per setting, one button per value.
+- **Sidebar controls**: **if it affects all states of the component, it goes in the right sidebar.** Theme, size, shape or radius, shadow, theme, density, width, fill: one control per setting, one button per value.
 - **States**, in groups:
   - Interaction: default, hover, focus-visible, pressed, disabled; selected or checked for toggles.
   - Async: loading, success, error, where they apply.
   - Data: empty, long content, no text, with an icon, many items, missing optional fields.
   - Layout: narrow, full width, wrapped text.
 
-Take the **look** from the project: its color variables (component-lab Phase 2 says how to collect them), one existing component of similar size for radius, type scale and spacing, and its icon source.
+Take the **look** from the project: its **color variables** for the background dropdown (one search of the CSS custom properties, the Tailwind theme or a tokens file: every variable whose value is a raw color, as `{ name, value }`; aliases and non-colors stay out; an empty list hides the dropdown), one existing component of similar size for radius, type scale and spacing, and its icon source.
 
 Print the list in a few lines: a one-word name per state, each group with a short reason ("Loading: the action takes time"). It answers "what states does it need?", and the user can add and drop states now or in Phase 4.
 
@@ -39,8 +39,11 @@ Print the list in a few lines: a one-word name per state, each group with a shor
 ### Phase 3: Draft the prototype and open the lab
 
 1. **Draft the component from scratch** in a folder named `ahem-skill-<component>`. Keep it **minimal**: plain and neutral, the project's tokens and fonts, real icons from the project's icon source. The point is that every state exists and reads clearly. Implement every state on the list, with hover, focus and pressed as `data-force` twin selectors in the draft's own styles (`.btn:hover, .btn[data-force="hover"] { ... }`).
-2. **Build the lab** as component-lab's Phase 3 says, from step 2 on. The draft is already in the folder, so it renders as it is. One scenario per state, one sidebar control per setting from Phase 2, the same guard marked `ahem-skill`. With no web dev server, component-lab's [NON-WEB.md](../component-lab/NON-WEB.md) applies.
-3. **Open it in the browser** and print the URL.
+2. **Make it testable.** Stub every callback and side effect, so the Interactive tab does nothing real. Write scenarios with product-shaped copy, real-shaped names, amounts and counts, and plausible values: three rows of "Test item" make every state look fine. Loading and pending states stay pending, with no timeout that resolves them.
+3. **Keep it in the cell.** Everything the component renders stays inside its grid cell, panels included. Overlays (listboxes, menus, popovers, tooltips) mount inside the cell: point the portal container at `host`, the fifth argument of `render` and the cell's own element, or render the panel in flow. A panel portaled to `body` escapes the grid.
+4. **Fill the page.** Copy [lab.html](lab.html) into the same folder and edit only its `Per run` block: name, variants, axes (the sidebar controls), `COLORS`, scenarios (`id`, `label`, `group`, `props`, optional `force` and `variants`; one per state) and `render(variant, props, force, axes, host)`, which mounts the draft. The rest stays as it is, so the lab looks the same on every run.
+5. **Mount it.** Reach the lab with the search param `?ahem-skill=<component>` (kebab-case) on the page the app already serves, so hot reload works. Add one guard where the whole app is rendered (React: `main.tsx` or the root `App`; Next: a small client component rendered from the root layout; the equivalent elsewhere). With the param present it returns the lab instead of the app, so nothing underneath runs. Put it inside the providers the draft needs (theme, i18n). The lab's root is a fixed full-viewport overlay; when it sits in a container with `transform`, `filter`, `backdrop-filter`, `will-change` or `contain`, render it through a portal to `body`. Mark the guard with a comment containing `ahem-skill`: the clean-up search finds it by that marker.
+6. **Check every cell, then take the user there.** Start the dev server if it is not running and open `http://localhost:<port>/?ahem-skill=<component>` in the browser (`open <url>` on macOS, `xdg-open` on Linux). Compare the cell count with the Phase 2 list. Print the URL. With no web dev server (SwiftUI, Android, a plain static site), read [NON-WEB.md](NON-WEB.md): it replaces the mount and the clean-up.
 
 **Done when** the lab is open in the user's browser and has a cell for every state on the Phase 2 list.
 
@@ -57,7 +60,7 @@ Print the variants, sidebar controls and states in a few lines. Then the loop: t
 3. **Delete the lab, always, without waiting to be asked.** Remove the `ahem-skill-<component>` folder and the guard with its import.
 4. Prove it is gone: a search of the repo for `ahem-skill` and `data-force` finds nothing, and `git status` lists no lab path. Stop the dev server if you started it.
 5. Run the project's checks, now that the work is production code.
-6. Tell the user `/component-lab` is how to keep working on it.
+6. Tell the user that `/component-lab` (when installed) is how to keep working on it.
 
 **Done when** the component exists in the project, the repo has zero hits for `ahem-skill` and `data-force`, and the checks pass.
 
