@@ -7,7 +7,7 @@
 <!--
 HOW THIS PAGE BEHAVES. Copy it and edit only the "Per run" block.
 
-LAYOUT  Top bar: breadcrumb, variant select (only with 2+ variants), then the background color chip, its color picker and the project-color dropdown. Body: the grid, then a right panel of global controls (folds, at least 150px wide, hidden when there are no axes). The root .lab is position:fixed, inset:0, so it fills the viewport whatever the app wraps around it.
+LAYOUT  Top bar: breadcrumb, variant select (only with 2+ variants), then the background color chip, its color picker and the project-color dropdown. Body: the grid, then a right panel of global controls (folds, 150 to 280px wide, scrolls vertically when there are many controls, a control's options wrap, hidden when there are no axes). The root .lab is position:fixed, inset:0, so it fills the viewport whatever the app wraps around it.
 GRID    One cell per scenario of the selected variant, each showing its state as the resting state. Every cell is live: the component feels as it does in production, on that state (hover, press, focus, drag and drop, keyboard, transitions; hover the loading button and its hover style shows). A cell under the pointer or holding focus paints over its neighbours, so panels it opens overlap them. Columns are measured from what really rendered (wide children, menus, popups), rows grow for parts that hang below, and the last row is filled so the grid is a full rectangle. No widths are configured: a component that fills its container fills its slot (max 360px).
 STATE   Every control lives in the URL: variant, each axis key, bg. Axes set data-<key> on every slot and style the components only.
 MOTION  Chrome only, and little: the color picker fades and scales in from its chip (150ms), controls answer a press (scale .97). Cells and the component never animate: the lab is a tool used all day, and the component must show production motion alone.
@@ -76,12 +76,13 @@ COLOR   The background chip colors the whole page and the lab's own text, icons 
   /* A component that fills its container fills this slot (capped at a typical form-column width); one with its own size keeps it. The grid then widens to whatever actually came out. */
   .lab-slot { position: relative; contain: layout; width: 100%; max-width: 360px; } /* a containing block, so absolute and fixed parts (panels, menus) stay in this cell and are measured with it */
   .lab-right { display: flex; flex-direction: column; gap: 16px; flex: none; padding: 16px 8px; border-left: 1px solid var(--line); } /* the full-height divider; the last grid column draws no right border of its own */
-  .lab-right { min-width: 150px; } /* at least 150px wide when expanded, even for a single short control */
+  .lab-right { min-width: 150px; max-width: 280px; overflow-y: auto; } /* at least 150px wide when expanded, at most 280px; many controls scroll vertically, and the options of one control wrap */
   .lab-right[data-folded] { min-width: 0; }
   .lab-right[hidden] { display: none; }
   .lab-field { display: grid; gap: 8px; justify-items: start; }
   .lab-flabel { padding-left: 8px; color: var(--dim); }
-  .lab-seg { display: flex; padding: .5px; border-radius: 8px; background: var(--line); box-shadow: inset 0 0 0 .5px var(--line); }
+  .lab-field { max-width: 100%; }
+  .lab-seg { display: flex; flex-wrap: wrap; max-width: 100%; padding: .5px; border-radius: 8px; background: var(--line); box-shadow: inset 0 0 0 .5px var(--line); }
   .lab-opt { padding: 4px 8px; border: 0; border-radius: 7.5px; background: none; color: var(--fg); font: inherit; letter-spacing: inherit; white-space: nowrap; cursor: pointer; }
   .lab-opt[aria-pressed="true"] { background: var(--pill); box-shadow: 0 0 0 .5px var(--line); }
   .lab-fold { align-self: flex-start; display: grid; place-items: center; width: 24px; height: 16px; border: 0; background: none; color: var(--icon); cursor: pointer; }
